@@ -21,8 +21,8 @@ async function probe(name: string, check: () => Promise<void>): Promise<boolean>
 
 export async function doctorCommand(config: Config): Promise<boolean> {
   const major = Number(process.versions.node.split('.')[0]);
-  if (major >= 18) ok(`Node.js ${process.versions.node}`);
-  else fail(`Node.js ${process.versions.node}`, 'Eventa needs Node.js 18 or newer');
+  if (major >= 20) ok(`Node.js ${process.versions.node}`);
+  else fail(`Node.js ${process.versions.node}`, 'Eventa needs Node.js 20 or newer');
 
   const ollamaOk = await probe(`Ollama (${config.model})`, () => new OllamaProvider(config.model, config.ollamaHost).check());
   const localOk = await probe(`Built-in runtime (${config.localModel})`, () => new LocalProvider(config.localModel).check());
@@ -30,5 +30,5 @@ export async function doctorCommand(config: Config): Promise<boolean> {
   const active = await createProvider(config);
   console.log(chalk.dim(`\nProvider setting: ${config.provider} → using ${active.name} (${active.model})`));
   if (!ollamaOk && !localOk) console.log(chalk.dim('Neither is ready yet. Eventa installs the built-in runtime and model on first use, or run `eventa model pull` now.'));
-  return major >= 18 && (ollamaOk || localOk);
+  return major >= 20 && (ollamaOk || localOk);
 }

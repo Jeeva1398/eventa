@@ -6,7 +6,7 @@ const pkg = JSON.parse(readFileSync('./package.json', 'utf8')) as { version: str
 export default defineConfig({
   entry: ['src/index.ts'],
   format: ['esm'],
-  target: 'node18',
+  target: 'node20',
   platform: 'node',
   clean: true,
   banner: { js: '#!/usr/bin/env node' },

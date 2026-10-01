@@ -7,16 +7,19 @@
     "eventa": "dist/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "prepublishOnly": "npm run typecheck && npm test && npm run build"
   },
   "keywords": [
     "nodejs",
@@ -45,5 +48,9 @@
     "tsup": "^8.5.1",
     "typescript": "^7.0.2",
     "vitest": "^4.1.11"
+  },
+  "homepage": "https://github.com/Jeeva1398/eventa#readme",
+  "bugs": {
+    "url": "https://github.com/Jeeva1398/eventa/issues"
   }
 }

@@ -73,6 +73,18 @@ describe('downloadModel', () => {
     await expect(downloadModel(spec(), undefined, (async () => new Response('', { status: 404 })) as typeof fetch)).rejects.toThrow(/not published yet/);
   });
 
+  it('looks up the checksum from the Hugging Face API when the registry has none', async () => {
+    const urls: string[] = [];
+    const fake = (async (url: string) => {
+      urls.push(url);
+      if (url.includes('/api/models/')) return Response.json([{ path: 'm.gguf', lfs: { oid: 'f'.repeat(64), size: payload.length } }]);
+      return new Response(payload);
+    }) as typeof fetch;
+    const s = spec({ url: 'https://huggingface.co/acme/m-gguf/resolve/main/m.gguf', file: 'm.gguf' });
+    await expect(downloadModel(s, undefined, fake)).rejects.toThrow(/Checksum mismatch/);
+    expect(urls[0]).toBe('https://huggingface.co/api/models/acme/m-gguf/tree/main');
+  });
+
   it('formats a progress bar', () => {
     expect(formatProgress({ received: 50 * 1024 ** 2, total: 100 * 1024 ** 2, bytesPerSecond: 2 * 1024 ** 2 }, 10)).toBe('[█████░░░░░]  50%  50/100 MB  2.0 MB/s');
   });

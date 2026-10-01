@@ -27,13 +27,30 @@ export async function sha256File(path: string): Promise<string> {
   return hash.digest('hex');
 }
 
+const HF_RE = /^https:\/\/huggingface\.co\/([^/]+\/[^/]+)\/resolve\/([^/]+)\/([^/]+)$/;
+
+export async function hubChecksum(url: string, fetchImpl: typeof fetch = fetch): Promise<{ sha256?: string; size?: number }> {
+  const m = HF_RE.exec(url);
+  if (!m) return {};
+  try {
+    const res = await fetchImpl(`https://huggingface.co/api/models/${m[1]}/tree/${m[2]}`);
+    if (!res.ok) return {};
+    const files = (await res.json()) as { path: string; lfs?: { oid: string; size: number } }[];
+    const lfs = files.find((f) => f.path === decodeURIComponent(m[3]))?.lfs;
+    return lfs ? { sha256: lfs.oid, size: lfs.size } : {};
+  } catch {
+    return {};
+  }
+}
+
 export async function downloadModel(
-  spec: ModelSpec,
+  model: ModelSpec,
   onProgress?: (p: Progress) => void,
   fetchImpl: typeof fetch = fetch,
 ): Promise<string> {
-  const target = modelPath(spec);
+  const target = modelPath(model);
   if (existsSync(target)) return target;
+  const spec = model.sha256 ? model : { ...model, ...(await hubChecksum(model.url, fetchImpl)) };
   mkdirSync(dirname(target), { recursive: true });
 
   const part = `${target}.part`;

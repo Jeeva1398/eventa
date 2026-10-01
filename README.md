@@ -32,14 +32,14 @@ Global flags: `-m, --model <name>`, `-p, --provider auto|ollama|local`, `--host 
 With `provider: auto` (the default), Eventa uses Ollama if it is running and has the model. Otherwise it uses the **built-in runtime**:
 
 - On first use it installs `node-llama-cpp` with only the CPU binary for your platform (~80 MB) into `~/.eventa/runtime`. It then downloads the GGUF model (~1 GB, SHA-256 verified, resumable) into `~/.eventa/models`.
-- After that, everything runs offline. Use `eventa model list | pull | use | rm` to manage models. The built-in runtime needs Node >= 20.
+- After that, everything runs offline. Use `eventa model list | pull | use | rm` to manage models.
 
 ## Development
 
-Requirements: Node >= 18, [Ollama](https://ollama.com) (until the built-in runtime lands).
+Requirements: Node >= 20. [Ollama](https://ollama.com) is optional.
 
 ```bash
-ollama pull qwen2.5-coder:1.5b   # stand-in model until eventa-1.5b is published
+ollama pull qwen2.5-coder:1.5b   # optional: faster dev loop than the built-in runtime
 npm install
 npm run build
 ```
@@ -51,6 +51,10 @@ packages/cli/   the `eventa` npm package (TypeScript)
 training/       dataset builders, fine-tuning notebook, eval
 ```
 
+## Releasing
+
+See [RELEASING.md](RELEASING.md). It covers publishing the model to Hugging Face from the notebook, and the CLI to npm via a `v*` tag.
+
 ## License
 
-MIT
+The CLI and training code are MIT. The `eventa-1.5b` model weights are Apache-2.0, following the base model Qwen2.5-Coder-1.5B-Instruct.
