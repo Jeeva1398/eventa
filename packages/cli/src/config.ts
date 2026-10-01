@@ -3,16 +3,18 @@ import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 
 export interface Config {
-  provider: 'ollama';
+  provider: 'auto' | 'ollama' | 'local';
   model: string;
+  localModel: string;
   ollamaHost: string;
   temperature: number;
   contextSize: number;
 }
 
 export const DEFAULTS: Config = {
-  provider: 'ollama',
+  provider: 'auto',
   model: 'qwen2.5-coder:1.5b',
+  localModel: 'qwen2.5-coder-1.5b',
   ollamaHost: 'http://localhost:11434',
   temperature: 0.2,
   contextSize: 8192,
@@ -39,6 +41,8 @@ function readFile(): Partial<Config> {
 function fromEnv(env: NodeJS.ProcessEnv): Partial<Config> {
   const out: Partial<Config> = {};
   if (env.EVENTA_MODEL) out.model = env.EVENTA_MODEL;
+  if (env.EVENTA_LOCAL_MODEL) out.localModel = env.EVENTA_LOCAL_MODEL;
+  if (env.EVENTA_PROVIDER) out.provider = env.EVENTA_PROVIDER as Config['provider'];
   const host = env.EVENTA_OLLAMA_HOST ?? env.OLLAMA_HOST;
   if (host) out.ollamaHost = host.startsWith('http') ? host : `http://${host}`;
   return out;

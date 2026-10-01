@@ -38,7 +38,7 @@ export class OllamaProvider implements Provider {
   async check(): Promise<void> {
     let res: Response;
     try {
-      res = await this.fetchImpl(`${this.host}/api/tags`);
+      res = await this.fetchImpl(`${this.host}/api/tags`, { signal: AbortSignal.timeout(2000) });
     } catch {
       throw this.unreachable();
     }

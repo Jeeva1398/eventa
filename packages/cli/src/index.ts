@@ -4,14 +4,16 @@ import { askCommand } from './commands/ask.js';
 import { configGet, configSet, configWhere } from './commands/config.js';
 import { depsCommand, type DepsOptions } from './commands/deps.js';
 import { doctorCommand } from './commands/doctor.js';
+import { modelList, modelPull, modelRemove, modelUse } from './commands/model.js';
 import { explainCommand, type ExplainOptions } from './commands/explain.js';
 import { reviewCommand, type ReviewOptions } from './commands/review.js';
-import { loadConfig } from './config.js';
+import { type Config, loadConfig } from './config.js';
 import { ProviderError } from './llm/index.js';
 
 interface GlobalOpts {
   model?: string;
   host?: string;
+  provider?: Config['provider'];
   raw?: boolean;
 }
 
@@ -23,11 +25,13 @@ program
   .version(__VERSION__)
   .option('-m, --model <name>', 'model to use (overrides config)')
   .option('--host <url>', 'Ollama host URL')
+  .option('-p, --provider <name>', 'auto | ollama | local')
   .option('--raw', 'print plain output without terminal formatting');
 
 const configFrom = (cmd: Command) => {
   const g = cmd.optsWithGlobals<GlobalOpts>();
-  return { config: loadConfig({ model: g.model, ollamaHost: g.host }), raw: g.raw };
+  if (g.provider && !['auto', 'ollama', 'local'].includes(g.provider)) throw new Error('--provider must be auto, ollama or local');
+  return { config: loadConfig({ model: g.model, localModel: g.model, ollamaHost: g.host, provider: g.provider }), raw: g.raw };
 };
 
 program
@@ -80,6 +84,12 @@ program
     const healthy = await doctorCommand(configFrom(cmd).config);
     if (!healthy) process.exitCode = 1;
   });
+
+const model = program.command('model').description('manage the built-in local model');
+model.command('list').description('show built-in models and what is downloaded').action(modelList);
+model.command('pull').argument('[id]', 'model id, .gguf URL or path (default: configured localModel)').description('install the runtime and download a model').action(modelPull);
+model.command('use').argument('<id>').description('set the default local model').action(modelUse);
+model.command('rm').argument('<id>').description('delete a downloaded model').action(modelRemove);
 
 const config = program.command('config').description('view or change settings');
 config.command('get').argument('[key]').description('print a setting or all settings').action(configGet);

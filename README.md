@@ -25,7 +25,14 @@ npx eventa deps                    # audit package.json dependencies
 | `eventa doctor` | Checks Node, Ollama and the model. |
 | `eventa config get\|set\|path` | Settings in `~/.eventa/config.json` (`model`, `ollamaHost`, `temperature`, `contextSize`). |
 
-Global flags: `-m, --model <name>`, `--host <url>`, `--raw`. `explain`, `review` and `deps` also take `--json` for CI.
+Global flags: `-m, --model <name>`, `-p, --provider auto|ollama|local`, `--host <url>`, `--raw`. `explain`, `review` and `deps` also take `--json` for CI.
+
+## How the model runs
+
+With `provider: auto` (the default), Eventa uses Ollama if it is running and has the model. Otherwise it uses the **built-in runtime**:
+
+- On first use it installs `node-llama-cpp` with only the CPU binary for your platform (~80 MB) into `~/.eventa/runtime`. It then downloads the GGUF model (~1 GB, SHA-256 verified, resumable) into `~/.eventa/models`.
+- After that, everything runs offline. Use `eventa model list | pull | use | rm` to manage models. The built-in runtime needs Node >= 20.
 
 ## Development
 

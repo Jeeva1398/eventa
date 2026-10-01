@@ -10,7 +10,8 @@ export interface OutputOptions {
 }
 
 export async function generate(config: Config, parts: PromptParts, opts: OutputOptions = {}): Promise<string> {
-  const provider = createProvider(config);
+  const provider = await createProvider(config);
+  await provider.prepare?.();
   const tokens = provider.generate(toPrompt(parts), {
     system: opts.system ?? SYSTEM_PROMPT,
     temperature: config.temperature,

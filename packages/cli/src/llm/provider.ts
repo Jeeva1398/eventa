@@ -10,6 +10,7 @@ export interface Provider {
   model: string;
   generate(prompt: string, opts?: GenerateOptions): AsyncIterable<string>;
   check(): Promise<void>;
+  prepare?(): Promise<void>;
 }
 
 export class ProviderError extends Error {
