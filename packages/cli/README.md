@@ -27,7 +27,7 @@ Eventa parses the stack trace or `tsc` output, reads the source lines it points 
 Reviews `git diff --staged`, falling back to unstaged changes. Use `--base main` to review everything since `main`. Each file gets static checks first (missing `await`, SQL/command injection, `eval`, sync fs, empty `catch`, disabled TLS, hard-coded secrets), then the model confirms or dismisses them and reports `- [severity] line N: problem → fix`.
 
 ### `eventa deps`
-Runs `npm audit` and `npm outdated` and scans your imports. It prints the vulnerabilities with their **exact fix commands**, outdated packages (flagging major bumps), unused dependencies and packages that are imported but not declared. Then it adds AI advice on upgrade risk. Use `--no-ai` for the report only.
+Runs `npm audit` and `npm outdated` and scans your imports. It prints the vulnerabilities with their **exact fix commands**, outdated packages (flagging major bumps), unused dependencies and packages that are imported but not declared. Then it prints an **action plan** built only from facts: the fix commands, verified breaking-change notes for about 25 popular packages (others say "read the changelog" instead of guessing), and cleanup commands. It is instant and works without the model. Add `--ai` for optional extra commentary from the model.
 
 ### More
 - `eventa ask <question>`: any Node.js question

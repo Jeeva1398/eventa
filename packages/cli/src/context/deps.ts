@@ -95,6 +95,13 @@ export function fixPlan(vulns: Vulnerability[]): { command: string; fixes: strin
   return [...groups].map(([command, fixes]) => ({ command, fixes }));
 }
 
+// semver: for 0.x versions a minor bump is breaking.
+export function breaking(current: string, latest: string): boolean {
+  const [cMajor, cMinor] = current.split('.');
+  const [lMajor, lMinor] = latest.split('.');
+  return cMajor !== lMajor || (cMajor === '0' && cMinor !== lMinor);
+}
+
 export function parseOutdated(text: string): Outdated[] {
   const json = parseJson<Record<string, { current?: string; wanted: string; latest: string }>>(text) ?? {};
   return Object.entries(json).map(([name, v]) => ({
@@ -102,7 +109,7 @@ export function parseOutdated(text: string): Outdated[] {
     current: v.current,
     wanted: v.wanted,
     latest: v.latest,
-    major: Boolean(v.current && v.latest && v.current.split('.')[0] !== v.latest.split('.')[0]),
+    major: Boolean(v.current && v.latest && breaking(v.current, v.latest)),
   }));
 }
 

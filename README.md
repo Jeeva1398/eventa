@@ -22,7 +22,7 @@ Or install once with `npm i -g @jeeva1398/eventa`, then use the `eventa` command
 |---|---|
 | `eventa explain` | Reads an error from stdin, `--file <log>`, `--run "<cmd>"` or arguments. Parses Node stack traces and TypeScript `tsc` errors, reads the failing source lines, and explains the cause and fix. Knows Node, Express, NestJS and Prisma error codes. |
 | `eventa review` | Reviews `git diff --staged` (or unstaged changes, or `--base main`) file by file. Static checks (missing await, injection, sync fs, empty catch…) guide the model. |
-| `eventa deps` | Runs `npm audit` and `npm outdated` and scans imports for unused or missing packages. Prints exact fix commands, then AI advice on upgrade risk (`--no-ai` to skip). |
+| `eventa deps` | Runs `npm audit` and `npm outdated` and scans imports for unused or missing packages. Prints a deterministic action plan: exact fix commands, verified breaking-change notes for major upgrades (Express, NestJS, Prisma, Mongoose, Jest, ESLint, …) and cleanup commands. `--ai` adds optional model commentary. |
 | `eventa ask <question>` | Ask any Node.js question. |
 | `eventa doctor` | Checks Node, Ollama and the model. |
 | `eventa config get\|set\|path` | Settings in `~/.eventa/config.json` (`model`, `ollamaHost`, `temperature`, `contextSize`). |

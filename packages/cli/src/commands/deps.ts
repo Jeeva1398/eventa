@@ -2,11 +2,13 @@ import chalk from 'chalk';
 import ora from 'ora';
 import type { Config } from '../config.js';
 import { collectDeps, type DepsReport, fixPlan, readPackageJson } from '../context/deps.js';
+import { buildPlan } from '../context/depsPlan.js';
 import { depsPrompt } from '../prompts/deps.js';
+import { renderStream } from '../ui/render.js';
 import { generate, printJson } from './shared.js';
 
 export interface DepsOptions {
-  ai: boolean;
+  ai?: boolean;
   json?: boolean;
   raw?: boolean;
 }
@@ -52,9 +54,11 @@ export async function depsCommand(config: Config, opts: DepsOptions): Promise<vo
   const report = await collectDeps(cwd).finally(() => spinner?.stop());
   const wantAi = opts.ai && !isHealthy(report);
 
+  const plan = isHealthy(report) ? '' : buildPlan(report);
+
   if (opts.json) {
     const analysis = wantAi ? await generate(config, depsPrompt(report, process.versions.node), { json: true }) : undefined;
-    printJson({ ...report, analysis });
+    printJson({ ...report, plan, analysis });
     return;
   }
   printReport(report);
@@ -62,8 +66,16 @@ export async function depsCommand(config: Config, opts: DepsOptions): Promise<vo
     console.log(chalk.green('✔ Dependencies look healthy.'));
     return;
   }
+  console.log(chalk.bold.underline('Action plan'));
+  await renderStream(lines(plan), { raw: opts.raw });
   if (wantAi) {
-    console.log(chalk.bold.underline('Advice'));
+    console.log(chalk.bold.underline('\nAI notes'));
     await generate(config, depsPrompt(report, process.versions.node), opts);
+  } else {
+    console.log(chalk.dim('\nRun with --ai for extra AI commentary.'));
   }
+}
+
+async function* lines(text: string) {
+  yield text;
 }

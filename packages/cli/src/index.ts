@@ -70,7 +70,7 @@ program
 program
   .command('deps')
   .description('audit dependencies: vulnerabilities, outdated, unused and missing packages')
-  .option('--no-ai', 'only print the report, skip AI advice')
+  .option('--ai', 'also ask the model for extra commentary (the action plan itself is always deterministic)')
   .option('--json', 'print JSON output')
   .action(async (opts: DepsOptions, cmd: Command) => {
     const { config, raw } = configFrom(cmd);
