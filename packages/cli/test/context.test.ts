@@ -69,6 +69,17 @@ describe('diff + heuristics', () => {
     expect(rules).toEqual(expect.arrayContaining(['sync-fs@12', 'promise-no-await@14', 'sql-injection@15', 'empty-catch@18']));
   });
 
+  it('flags forEach(async), jwt.decode, open redirects and Mongo-style calls without await', () => {
+    const added = [
+      'users.forEach(async (u) => {',
+      '  return jwt.decode(token);',
+      '  res.redirect(req.query.next);',
+      '    Session.deleteOne({ _id: id });',
+      "const user = users.find((u) => u.id === id);",
+    ].map((text, i) => ({ line: i + 1, text }));
+    expect(scanAddedLines(added).map((h) => `${h.rule}@${h.line}`)).toEqual(['foreach-async@1', 'jwt-decode@2', 'open-redirect@3', 'promise-no-await@4']);
+  });
+
   it('splits long patches on hunk boundaries', () => {
     const patch = '@@ -1 +1 @@\n' + 'a'.repeat(50) + '\n@@ -9 +9 @@\n' + 'b'.repeat(50) + '\n';
     const parts = splitPatch(patch, 80);

@@ -17,6 +17,7 @@ import { CRASHES } from './scenarios/explain.js';
 import { MORE_CRASHES } from './scenarios/explain-more.js';
 import { REVIEWS } from './scenarios/review.js';
 import { MORE_REVIEWS } from './scenarios/review-more.js';
+import { HIDDEN_BUGS } from './scenarios/review-hidden.js';
 import type { CrashScenario, Example, ReviewScenario, Vars } from './types.js';
 
 export const EVAL_SCENARIOS = new Set(['tdz', 'invalid-url', 'write-after-end', 'heap-oom-static', 'jwt-none-verify', 'foreach-async', 'clean-execfile', 'parseint-radix-and-nan', 'clean-validated-input', 'reduce-empty']);
@@ -167,7 +168,7 @@ function main() {
       for (let r = 0; r < (EVAL_SCENARIOS.has(s.id) ? 1 : repeats); r++) add(explainExample(s, i * repeats + r));
     });
   }
-  for (const scenario of [...REVIEWS, ...MORE_REVIEWS]) expand(scenario).forEach((s, i) => add(reviewExample(s, i)));
+  for (const scenario of [...REVIEWS, ...MORE_REVIEWS, ...HIDDEN_BUGS]) expand(scenario).forEach((s, i) => add(reviewExample(s, i)));
   for (let i = 0; i < Number(process.env.DEPS_TRAIN ?? 150); i++) add(depsExample(i, 'train'));
   for (let i = 0; i < Number(process.env.DEPS_EVAL ?? 15); i++) add(depsExample(i, 'eval'));
 
