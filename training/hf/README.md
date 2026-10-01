@@ -70,7 +70,21 @@ The user message is a task instruction followed by the context (error output and
 
 ## Evaluation
 
-`training/src/eval.ts` on held-out scenarios. Base-vs-fine-tune numbers are measured after each training round with `npm run eval -w eventa-training`.
+54 held-out examples from scenarios never seen in training (`npm run eval -w eventa-training`). Both models were run through Ollama on CPU with the CLI's prompts.
+
+| Metric | Qwen2.5-Coder-1.5B (base) | eventa-1.5b |
+|---|---|---|
+| Explain: Cause/Fix/Prevent format | 100% | 100% |
+| Explain: key facts mentioned | 75% | 68% |
+| Review: real issues found | 100% | 100% |
+| Review: precision (flagged lines that are real issues) | 48% | **100%** |
+| Review: correct severity | 50% | **63%** |
+| Review: clean diff → "No issues found." | 0% | **100%** |
+| Deps: exact fix commands | 100% | 100% |
+| Deps: no invented versions | 93% | **100%** |
+| Avg seconds per answer (CPU) | 13.6 | **5.9** |
+
+The base model flags almost every line, so its 100% recall is mostly noise. eventa-1.5b reports only real problems and is about 2× faster because its answers are shorter. Explain quality on unseen error types is slightly below the base model and is the focus of the next data round.
 
 ## Limitations
 
