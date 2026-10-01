@@ -1,0 +1,16 @@
+FROM ./eventa-1.5b-q4_k_m.gguf
+
+TEMPLATE """{{ if .System }}<|im_start|>system
+{{ .System }}<|im_end|>
+{{ end }}{{ if .Prompt }}<|im_start|>user
+{{ .Prompt }}<|im_end|>
+{{ end }}<|im_start|>assistant
+{{ .Response }}<|im_end|>
+"""
+
+SYSTEM """You are Eventa, an expert Node.js engineer. Answer concisely and accurately. Prefer modern Node.js (ESM, async/await, node: built-ins). Use markdown and fenced code blocks."""
+
+PARAMETER temperature 0.2
+PARAMETER num_ctx 8192
+PARAMETER stop "<|im_end|>"
+PARAMETER stop "<|endoftext|>"

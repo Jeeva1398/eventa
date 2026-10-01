@@ -1,0 +1,11 @@
+{
+  "name": "eventa-training",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build-data": "tsx src/build-dataset.ts",
+    "eval": "tsx src/eval.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  }
+}

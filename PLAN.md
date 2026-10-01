@@ -117,3 +117,11 @@ D:\eventa
 - Phase 3: works offline after the first download, with no Ollama installed.
 - Phase 4: the fine-tuned model scores higher than base on `eval.jsonl`.
 - Phase 5: `npm pack`, global install from the tarball in a clean folder, and all commands run. The HF Ollama command works.
+
+---
+
+## Implementation notes (where we differ from the plan)
+- **Phase 1:** terminal output uses a small line-based markdown formatter (chalk) instead of `marked-terminal`, and `node:child_process` instead of `execa`. That's fewer dependencies.
+- **Phase 2/4, prompt format:** prompts are sent as *system + user* messages through each model's own chat template (Ollama template / GGUF chat template), not as raw Alpaca text. The dataset keeps Alpaca-style fields (`instruction`, `input`, `output`), and the notebook renders them with the Qwen chat template, so training and runtime see identical text.
+- **Phase 3:** `node-llama-cpp` is not an npm dependency, because all of its platform binaries come to about 680 MB. The CLI installs it on first local use into `~/.eventa/runtime` with only the CPU binary for the current platform (~80 MB). The optional cloud provider (`cloud.ts`) is not built yet.
+- **Phase 4, data:** v1 has about 390 high-quality examples instead of 5k–20k. They are built from real crashing programs, annotated diffs and a real advisory catalog, not scraped data, and whole scenarios are held out for eval. CodeReviewer was not used (license unclear). Grow the data by adding scenarios.

@@ -2,10 +2,11 @@
   "name": "eventa-monorepo",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "training"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "scripts": {
     "build": "npm run build --workspaces --if-present",

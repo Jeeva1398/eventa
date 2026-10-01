@@ -2,6 +2,7 @@ export interface GenerateOptions {
   system?: string;
   temperature?: number;
   numCtx?: number;
+  maxTokens?: number;
   signal?: AbortSignal;
 }
 

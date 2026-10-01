@@ -12,7 +12,7 @@ export interface LlamaModule {
     loadModel(opts: { modelPath: string }): Promise<LlamaModel>;
   }>;
   LlamaChatSession: new (opts: { contextSequence: unknown; systemPrompt?: string }) => {
-    prompt(text: string, opts: { temperature?: number; signal?: AbortSignal; onTextChunk?: (t: string) => void }): Promise<string>;
+    prompt(text: string, opts: { temperature?: number; maxTokens?: number; signal?: AbortSignal; onTextChunk?: (t: string) => void }): Promise<string>;
     dispose(): void;
   };
 }

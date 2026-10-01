@@ -51,6 +51,7 @@ export class LocalProvider implements Provider {
     session
       .prompt(prompt, {
         temperature: opts.temperature,
+        maxTokens: opts.maxTokens ?? 1024,
         signal: opts.signal,
         onTextChunk: (t) => {
           chunks.push(t);
