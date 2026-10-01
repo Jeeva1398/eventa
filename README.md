@@ -14,6 +14,19 @@ npx eventa deps                    # audit package.json dependencies
 
 > Status: under active development. See [PLAN.md](PLAN.md) for the phase-wise roadmap.
 
+## Commands
+
+| Command | What it does |
+|---|---|
+| `eventa explain` | Reads an error from stdin, `--file <log>`, `--run "<cmd>"` or arguments. Parses the stack trace, reads the failing source lines, and explains the cause and fix. |
+| `eventa review` | Reviews `git diff --staged` (or unstaged changes, or `--base main`) file by file. Static checks (missing await, injection, sync fs, empty catch…) guide the model. |
+| `eventa deps` | Runs `npm audit` and `npm outdated` and scans imports for unused or missing packages. Prints exact fix commands, then AI advice on upgrade risk (`--no-ai` to skip). |
+| `eventa ask <question>` | Ask any Node.js question. |
+| `eventa doctor` | Checks Node, Ollama and the model. |
+| `eventa config get\|set\|path` | Settings in `~/.eventa/config.json` (`model`, `ollamaHost`, `temperature`, `contextSize`). |
+
+Global flags: `-m, --model <name>`, `--host <url>`, `--raw`. `explain`, `review` and `deps` also take `--json` for CI.
+
 ## Development
 
 Requirements: Node >= 18, [Ollama](https://ollama.com) (until the built-in runtime lands).

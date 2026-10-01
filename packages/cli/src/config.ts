@@ -7,6 +7,7 @@ export interface Config {
   model: string;
   ollamaHost: string;
   temperature: number;
+  contextSize: number;
 }
 
 export const DEFAULTS: Config = {
@@ -14,6 +15,7 @@ export const DEFAULTS: Config = {
   model: 'qwen2.5-coder:1.5b',
   ollamaHost: 'http://localhost:11434',
   temperature: 0.2,
+  contextSize: 8192,
 };
 
 export const CONFIG_KEYS = Object.keys(DEFAULTS) as (keyof Config)[];

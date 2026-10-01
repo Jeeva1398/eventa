@@ -2,7 +2,10 @@ import chalk from 'chalk';
 import { Command } from 'commander';
 import { askCommand } from './commands/ask.js';
 import { configGet, configSet, configWhere } from './commands/config.js';
+import { depsCommand, type DepsOptions } from './commands/deps.js';
 import { doctorCommand } from './commands/doctor.js';
+import { explainCommand, type ExplainOptions } from './commands/explain.js';
+import { reviewCommand, type ReviewOptions } from './commands/review.js';
 import { loadConfig } from './config.js';
 import { ProviderError } from './llm/index.js';
 
@@ -34,6 +37,40 @@ program
   .action(async (words: string[], _opts, cmd: Command) => {
     const { config, raw } = configFrom(cmd);
     await askCommand(words.join(' '), config, { raw });
+  });
+
+program
+  .command('explain')
+  .description('explain a Node.js error or stack trace and suggest a fix')
+  .argument('[error...]', 'error text (or pipe it via stdin)')
+  .option('-f, --file <path>', 'read the error from a log file')
+  .option('-r, --run <command>', 'run a command and explain its failure')
+  .option('--json', 'print JSON output')
+  .addHelpText('after', '\nExamples:\n  node app.js 2>&1 | eventa explain\n  eventa explain --run "npm test"\n  eventa explain --file crash.log')
+  .action(async (words: string[], opts: ExplainOptions, cmd: Command) => {
+    const { config, raw } = configFrom(cmd);
+    await explainCommand(words, config, { ...opts, raw });
+  });
+
+program
+  .command('review')
+  .description('review your staged git diff (falls back to unstaged changes)')
+  .option('-b, --base <ref>', 'review all changes since a branch or commit, e.g. main')
+  .option('--max-files <n>', 'maximum files to review', '20')
+  .option('--json', 'print JSON output')
+  .action(async (opts: ReviewOptions, cmd: Command) => {
+    const { config, raw } = configFrom(cmd);
+    await reviewCommand(config, { ...opts, raw });
+  });
+
+program
+  .command('deps')
+  .description('audit dependencies: vulnerabilities, outdated, unused and missing packages')
+  .option('--no-ai', 'only print the report, skip AI advice')
+  .option('--json', 'print JSON output')
+  .action(async (opts: DepsOptions, cmd: Command) => {
+    const { config, raw } = configFrom(cmd);
+    await depsCommand(config, { ...opts, raw });
   });
 
 program

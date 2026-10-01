@@ -1,0 +1,15 @@
+C:\projects\shop\src\server.js:3
+const fetch = require('node-fetch');
+              ^
+
+Error [ERR_REQUIRE_ESM]: require() of ES Module C:\projects\shop\node_modules\node-fetch\src\index.js from C:\projects\shop\src\server.js not supported.
+Instead change the require of index.js in C:\projects\shop\src\server.js to a dynamic import() which is available in all CommonJS modules.
+    at Object.<anonymous> (C:\projects\shop\src\server.js:3:15)
+    at Module._compile (node:internal/modules/cjs/loader:1554:14)
+    at Object..js (node:internal/modules/cjs/loader:1706:10)
+    at Module.load (node:internal/modules/cjs/loader:1289:32)
+    at node:internal/main/run_main_module:36:49 {
+  code: 'ERR_REQUIRE_ESM'
+}
+
+Node.js v20.11.0

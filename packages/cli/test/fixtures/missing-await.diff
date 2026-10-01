@@ -1,0 +1,32 @@
+diff --git a/src/orders.js b/src/orders.js
+index 3b18e51..a9c4d02 100644
+--- a/src/orders.js
++++ b/src/orders.js
+@@ -10,6 +10,14 @@ const db = require('./db');
+ router.post('/orders', async (req, res) => {
+   const { userId, items } = req.body;
++  const config = fs.readFileSync('./config.json', 'utf8');
++  const order = new Order({ userId, items });
++  order.save();
++  db.query(`SELECT * FROM users WHERE id = ${userId}`);
++  try {
++    await notify(userId);
++  } catch (e) {}
+   res.status(201).json({ ok: true });
+ });
+
+diff --git a/package-lock.json b/package-lock.json
+index 1111111..2222222 100644
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -1,3 +1,3 @@
+-  "version": "1.0.0",
++  "version": "1.0.1",
+diff --git a/src/old.js b/src/old.js
+deleted file mode 100644
+index 3b18e51..0000000
+--- a/src/old.js
++++ /dev/null
+@@ -1,2 +0,0 @@
+-const a = 1;
+-module.exports = a;

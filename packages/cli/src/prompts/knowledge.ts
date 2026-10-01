@@ -1,0 +1,25 @@
+export const ERROR_CODES: Record<string, string> = {
+  ERR_REQUIRE_ESM: 'require() of an ES module. Use import / dynamic import(), switch the file to ESM ("type": "module" or .mjs), or pin an older CJS version of the package.',
+  ERR_MODULE_NOT_FOUND: 'ESM import could not be resolved. ESM needs full relative paths with extensions (./util.js) and the package must be installed.',
+  MODULE_NOT_FOUND: 'require() could not find the module. Check the path, spelling, and that the package is installed in dependencies.',
+  ERR_UNKNOWN_FILE_EXTENSION: 'Node cannot run this extension directly (often .ts). Use tsx/ts-node, compile first, or Node >= 22.6 with --experimental-strip-types.',
+  ERR_PACKAGE_PATH_NOT_EXPORTED: 'Importing a subpath that the package "exports" field does not expose. Import the public entry point instead.',
+  ERR_HTTP_HEADERS_SENT: 'Response headers were already sent, usually res.send/res.json called twice. Return after sending, and check async branches.',
+  ERR_INVALID_ARG_TYPE: 'A Node API received the wrong type (often undefined). Validate the value before the call.',
+  ERR_UNHANDLED_REJECTION: 'A promise rejected with no handler. Add await inside try/catch or a .catch().',
+  ERR_OSSL_EVP_UNSUPPORTED: 'OpenSSL 3 rejected a legacy algorithm, common with old webpack. Upgrade the tool, or use NODE_OPTIONS=--openssl-legacy-provider as a temporary workaround.',
+  ERR_INVALID_URL: 'new URL() received a relative or malformed string. Provide an absolute URL or a base argument.',
+  ERR_STREAM_PREMATURE_CLOSE: 'A stream closed before finishing. Use stream.pipeline() and handle errors on both ends.',
+  ERR_SOCKET_CONNECTION_TIMEOUT: 'Socket connect timed out. Check the host/port, firewall, and the timeout settings.',
+  EADDRINUSE: 'The port is already taken by another process. Stop it, or use a different PORT.',
+  ECONNREFUSED: 'Nothing is listening at the target host:port (DB/API down or wrong address). Start the service or fix the connection config; in Docker use the service name instead of localhost.',
+  ECONNRESET: 'The peer closed the connection abruptly. Add retries/timeouts and check the server and proxy logs.',
+  ENOTFOUND: 'DNS lookup failed. Check the hostname and the network.',
+  ETIMEDOUT: 'The operation timed out. Check network reachability and timeouts.',
+  ENOENT: 'File or directory does not exist. Resolve paths from import.meta.dirname / __dirname, not from process.cwd().',
+  EACCES: 'Permission denied. Check file permissions; ports < 1024 need elevated rights.',
+  EPERM: 'Operation not permitted, often a file locked by another process on Windows or missing rights.',
+  EMFILE: 'Too many open files. Close handles, limit concurrency, or use graceful-fs.',
+};
+
+export const knowledgeFor = (code?: string): string | undefined => (code ? ERROR_CODES[code] : undefined);

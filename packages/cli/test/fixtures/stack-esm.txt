@@ -1,0 +1,10 @@
+file:///home/dev/api/src/routes/users.mjs:14
+  const name = user.profile.name;
+                            ^
+
+TypeError: Cannot read properties of undefined (reading 'name')
+    at getUser (file:///home/dev/api/src/routes/users.mjs:14:29)
+    at async handler (file:///home/dev/api/src/app.mjs:22:5)
+    at async /home/dev/api/node_modules/express/lib/router/layer.js:95:5
+
+Node.js v22.3.0

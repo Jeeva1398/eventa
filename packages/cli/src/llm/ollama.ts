@@ -60,7 +60,7 @@ export class OllamaProvider implements Provider {
           prompt,
           system: opts.system,
           stream: true,
-          options: { temperature: opts.temperature },
+          options: { temperature: opts.temperature, num_ctx: opts.numCtx },
         }),
         signal: opts.signal,
       });

@@ -1,6 +1,7 @@
 export interface GenerateOptions {
   system?: string;
   temperature?: number;
+  numCtx?: number;
   signal?: AbortSignal;
 }
 
