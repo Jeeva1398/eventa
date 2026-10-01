@@ -31,10 +31,10 @@ It is trained for the three tasks of the [`eventa` CLI](https://github.com/Jeeva
 **With the CLI (recommended).** The CLI builds the right prompts for you:
 
 ```bash
-npx eventa model use eventa-1.5b
-node app.js 2>&1 | npx eventa explain
-npx eventa review
-npx eventa deps
+npx @jeeva1398/eventa model use eventa-1.5b
+node app.js 2>&1 | npx @jeeva1398/eventa explain
+npx @jeeva1398/eventa review
+npx @jeeva1398/eventa deps
 ```
 
 **With Ollama:**

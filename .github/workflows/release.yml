@@ -21,9 +21,9 @@ jobs:
       - run: npm ci
       - name: Check tag matches package version
         run: test "v$(node -p "require('./packages/cli/package.json').version")" = "${GITHUB_REF_NAME}"
-      - run: npm test -w eventa
-      - run: npm run build -w eventa
-      - run: npm publish -w eventa --access public --provenance
+      - run: npm test -w packages/cli
+      - run: npm run build -w packages/cli
+      - run: npm publish -w packages/cli --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -38,7 +38,7 @@ jobs:
           cache: npm
       - uses: oven-sh/setup-bun@v2
       - run: npm ci
-      - run: npm run build -w eventa
+      - run: npm run build -w packages/cli
       - name: Compile standalone binaries
         run: |
           mkdir -p release

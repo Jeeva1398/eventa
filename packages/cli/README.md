@@ -3,10 +3,12 @@
 **Offline AI assistant for Node.js developers.** It explains crashes, reviews your diffs and audits dependencies, using a small code model that runs on your own machine. No API key, and no code leaves your laptop.
 
 ```bash
-npx eventa explain --run "node app.js"   # run it, explain the crash
-npx eventa review                        # review staged changes
-npx eventa deps                          # vulnerabilities, outdated, unused, missing
+npx @jeeva1398/eventa explain --run "node app.js"   # run it, explain the crash
+npx @jeeva1398/eventa review                        # review staged changes
+npx @jeeva1398/eventa deps                          # vulnerabilities, outdated, unused, missing
 ```
+
+Or install once with `npm i -g @jeeva1398/eventa`, then run `eventa explain`, `eventa review`, and so on.
 
 Requires Node.js 20+. On first use Eventa installs a small llama.cpp runtime (~80 MB) and downloads the model (~1 GB, checksum-verified). If [Ollama](https://ollama.com) is running, Eventa uses it instead.
 
