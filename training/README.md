@@ -22,7 +22,7 @@ Each record has `system`, `instruction`, `input`, `output` and a `check` used by
 
 ## 2. Fine-tune (free GPU)
 
-Open `finetune.ipynb` on Kaggle or Colab with a T4 GPU and run all cells. It runs Unsloth QLoRA (r=16, 3 epochs, responses-only loss) in about 15–25 min, then exports `eventa-1.5b-q4_k_m.gguf` and prints its SHA-256.
+Open `finetune.ipynb` on Kaggle or Colab with a T4 GPU and run all cells. It runs Unsloth QLoRA (r=16, 2 epochs, responses-only loss) in about 15–25 min, then exports `eventa-1.5b-q4_k_m.gguf` and prints its SHA-256.
 
 ## 3. Evaluate locally
 
