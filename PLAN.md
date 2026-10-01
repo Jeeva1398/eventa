@@ -10,7 +10,7 @@ commands, not just a chat.
   1. `eventa-1.5b-gguf` model on Hugging Face.
   2. `eventa` CLI on npm.
 - **v1 commands:** `eventa explain` (errors), `eventa review` (git diff), `eventa deps` (dependency audit).
-- **Project folder:** `D:\eventa`. After approval, this plan is copied to `D:\eventa\PLAN.md`.
+- **Project folder:** `D:\eventa`.
 - **Cost:** $0. Training runs on free Colab/Kaggle GPUs, and hosting is HF + npm + GitHub.
 
 ## Execution rules (from user)
@@ -26,7 +26,7 @@ commands, not just a chat.
 - Create `D:\eventa` as a git repo and a GitHub repo `eventa`.
 - Create accounts and tokens on npm, Hugging Face (write token) and Kaggle or Google Colab.
 - Install Node ≥ 18 and Ollama locally, then `ollama pull qwen2.5-coder:1.5b`. This is the stand-in model until our own is trained.
-- Check that the name `eventa` is free on npm (`npm view eventa`). If it's taken, use `@Jeeva1398/eventa`.
+- Check that the name `eventa` is free on npm (`npm view eventa`). If it's taken, use `@jeeva1398/eventa`.
 
 **Exit:** the repo exists and `ollama run qwen2.5-coder:1.5b "hello"` works.
 
