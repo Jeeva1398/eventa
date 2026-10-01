@@ -85,9 +85,9 @@ D:\eventa
 
 ## Phase 5: Deploy (Week 8)
 1. **Model → Hugging Face**
-   - `model.push_to_hub_gguf("Jeeva1398/eventa-1.5b-gguf", tokenizer, quantization_method="q4_k_m", token=HF_TOKEN)`.
+   - `model.push_to_hub_gguf("jeeva1398/eventa-1.5b-gguf", tokenizer, quantization_method="q4_k_m", token=HF_TOKEN)`.
    - Add a model card (usage, prompt format, MIT license, eval results) and a `Modelfile`.
-   - Users then run `ollama run hf.co/Jeeva1398/eventa-1.5b-gguf`.
+   - Users then run `ollama run hf.co/jeeva1398/eventa-1.5b-gguf`.
 2. **CLI default:** point `config.ts` at the new HF model URL and checksum.
 3. **CLI → npm**
    - Add `#!/usr/bin/env node` to index.ts and limit `"files": ["dist"]`. The model isn't bundled (the package stays about 1 MB).

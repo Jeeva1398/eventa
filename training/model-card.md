@@ -40,13 +40,13 @@ npx eventa deps
 **With Ollama:**
 
 ```bash
-ollama run hf.co/Jeeva1398/eventa-1.5b-gguf
+ollama run hf.co/jeeva1398/eventa-1.5b-gguf
 ```
 
 **With llama.cpp:**
 
 ```bash
-llama-cli -hf Jeeva1398/eventa-1.5b-gguf -sys "You are Eventa, an expert Node.js engineer."
+llama-cli -hf jeeva1398/eventa-1.5b-gguf -sys "You are Eventa, an expert Node.js engineer."
 ```
 
 ## Prompt format

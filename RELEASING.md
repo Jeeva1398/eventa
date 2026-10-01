@@ -6,7 +6,7 @@ Two things get published: the **model** (Hugging Face) and the **CLI** (npm + Gi
 
 | Where | What |
 |---|---|
-| huggingface.co | Account `Jeeva1398` and a **write** access token |
+| huggingface.co | Account `jeeva1398` and a **write** access token |
 | npmjs.com | Account, then an **Automation** (or granular, publish) access token |
 | GitHub repo → Settings → Secrets → Actions | `NPM_TOKEN` = the npm token |
 | Kaggle or Colab | Account with phone verification (needed for free GPUs). Add `HF_TOKEN` as a notebook secret |
@@ -14,7 +14,7 @@ Two things get published: the **model** (Hugging Face) and the **CLI** (npm + Gi
 ## 1. Publish the model
 
 1. Open `training/finetune.ipynb` on Kaggle or Colab with a **T4 GPU** and run all cells.
-2. The last cell uploads `eventa-1.5b-q4_k_m.gguf`, the model card, `system`/`params` (for Ollama) and the `Modelfile` to `huggingface.co/Jeeva1398/eventa-1.5b-gguf`.
+2. The last cell uploads `eventa-1.5b-q4_k_m.gguf`, the model card, `system`/`params` (for Ollama) and the `Modelfile` to `huggingface.co/jeeva1398/eventa-1.5b-gguf`.
 3. Download the GGUF as well, put it in `training/`, and compare it with the base model:
 
    ```bash
@@ -22,9 +22,9 @@ Two things get published: the **model** (Hugging Face) and the **CLI** (npm + Gi
    npm run eval -w eventa-training -- --models qwen2.5-coder:1.5b,eventa
    ```
 
-4. If it wins, make it the default. In `packages/cli/src/config.ts`, set `localModel: 'eventa-1.5b'`; for Ollama users, `model: 'hf.co/Jeeva1398/eventa-1.5b-gguf'`. Commit the new `training/eval-report.md` too.
+4. If it wins, make it the default. In `packages/cli/src/config.ts`, set `localModel: 'eventa-1.5b'`; for Ollama users, `model: 'hf.co/jeeva1398/eventa-1.5b-gguf'`. Commit the new `training/eval-report.md` too.
 
-Check: `ollama run hf.co/Jeeva1398/eventa-1.5b-gguf` and `npx eventa model pull eventa-1.5b`. The CLI fetches the SHA-256 from the Hugging Face API and verifies the download.
+Check: `ollama run hf.co/jeeva1398/eventa-1.5b-gguf` and `npx eventa model pull eventa-1.5b`. The CLI fetches the SHA-256 from the Hugging Face API and verifies the download.
 
 ## 2. Publish the CLI
 
