@@ -1,20 +1,58 @@
 # eventa
 
-Offline AI assistant for Node.js developers. A small fine-tuned code model that runs on your laptop, plus a CLI that puts it to work.
+[![npm](https://img.shields.io/npm/v/@jeeva1398/eventa?color=cb3837&label=npm)](https://www.npmjs.com/package/@jeeva1398/eventa)
+[![downloads](https://img.shields.io/npm/dm/@jeeva1398/eventa)](https://www.npmjs.com/package/@jeeva1398/eventa)
+[![ci](https://github.com/Jeeva1398/eventa/actions/workflows/ci.yml/badge.svg)](https://github.com/Jeeva1398/eventa/actions/workflows/ci.yml)
+[![model](https://img.shields.io/badge/%F0%9F%A4%97%20model-eventa--1.5b-yellow)](https://huggingface.co/jeeva1398/eventa-1.5b-gguf)
+![offline](https://img.shields.io/badge/runs-100%25%20offline-2ea44f)
+[![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
+**An offline AI assistant for Node.js and TypeScript.** It explains crashes, reviews your git diff and audits dependencies, using a small fine-tuned model that runs on your laptop. No API key, and your code never leaves your machine.
 
 ```bash
-npx @jeeva1398/eventa explain < crash.log     # explain a stack trace and suggest a fix
-npx @jeeva1398/eventa review                  # review your staged git diff
-npx @jeeva1398/eventa deps                    # audit package.json dependencies
+npx @jeeva1398/eventa explain --run "node app.js"   # run it, explain the crash
+npx @jeeva1398/eventa review                        # review your staged changes
+npx @jeeva1398/eventa deps                          # fix vulnerabilities, plan upgrades
 ```
 
-Or install once with `npm i -g @jeeva1398/eventa`, then use the `eventa` command.
+Or install once with `npm i -g @jeeva1398/eventa`, then use the `eventa` command. Requires Node 20+.
 
-- **Offline & free**: runs locally via Ollama or a built-in llama.cpp runtime. No API key, no code leaves your machine.
-- **Node-aware**: trained on Node.js, TypeScript, Express, NestJS and Prisma errors, review pitfalls and npm ecosystem issues.
-- **Model**: `eventa-1.5b-gguf` (Qwen2.5-Coder-1.5B fine-tune, Q4_K_M, ~1 GB) on Hugging Face.
+### What it looks like
 
-> Status: under active development.
+```text
+$ eventa explain --run "node src/users.js"
+TypeError: Cannot read properties of undefined (reading 'name')
+Looking at src/users.js:5, src/users.js:9
+
+Cause: `user` is found for id 2 but that record has no `profile`, so `user.profile`
+is `undefined` and reading `.name` on it throws.
+Fix:   return (user?.profile?.name ?? '')?.toUpperCase();
+```
+
+```text
+$ eventa review
+▸ src/orders.js
+Static checks
+  [high] line 7: async-looking call without await or return, result and errors are dropped
+  [high] line 8: SQL built with template interpolation, use parameters
+AI review
+- [high] line 7: `save()` returns a Promise that is not awaited, so failures are silently dropped → `await order.save();`
+- [high] line 8: SQL injection risks for `userId` → use a parameterized statement: `db.query('SELECT * FROM users WHERE id = ?', [userId])`
+```
+
+### Why Eventa
+
+| | Eventa | Cloud AI reviewers | `npm audit` |
+|---|---|---|---|
+| Works offline, no API key | ✅ | ❌ | ✅ |
+| Code stays on your machine | ✅ | ❌ | ✅ |
+| Explains crashes and `tsc` errors from your source | ✅ | ❌ | ❌ |
+| Reviews diffs and stays quiet on clean code | ✅ (100% precision in our eval) | varies | ❌ |
+| Exact fix commands + breaking-change notes | ✅ | ❌ | fix commands only |
+| Cost | free | per token | free |
+
+- **Built for Node:** Node core errors, TypeScript, Express, NestJS and Prisma.
+- **Its own model:** [`eventa-1.5b`](https://huggingface.co/jeeva1398/eventa-1.5b-gguf), a Qwen2.5-Coder-1.5B fine-tune (Q4_K_M, about 1 GB) that answers in about 6 s on a laptop CPU.
 
 ## Commands
 

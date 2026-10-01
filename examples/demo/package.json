@@ -1,0 +1,9 @@
+{
+  "name": "eventa-demo",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "express": "4.17.1",
+    "lodash": "4.17.20"
+  }
+}

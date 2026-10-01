@@ -1,6 +1,11 @@
 # eventa
 
-**Offline AI assistant for Node.js developers.** It explains crashes, reviews your diffs and audits dependencies, using a small code model that runs on your own machine. No API key, and no code leaves your laptop.
+[![npm](https://img.shields.io/npm/v/@jeeva1398/eventa?color=cb3837&label=npm)](https://www.npmjs.com/package/@jeeva1398/eventa)
+[![downloads](https://img.shields.io/npm/dm/@jeeva1398/eventa)](https://www.npmjs.com/package/@jeeva1398/eventa)
+[![model](https://img.shields.io/badge/%F0%9F%A4%97%20model-eventa--1.5b-yellow)](https://huggingface.co/jeeva1398/eventa-1.5b-gguf)
+![offline](https://img.shields.io/badge/runs-100%25%20offline-2ea44f)
+
+**Offline AI assistant for Node.js and TypeScript developers.** It explains crashes, reviews your diffs and audits dependencies, using a small code model that runs on your own machine. No API key, and no code leaves your laptop.
 
 ```bash
 npx @jeeva1398/eventa explain --run "node app.js"   # run it, explain the crash

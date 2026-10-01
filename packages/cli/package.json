@@ -1,7 +1,7 @@
 {
   "name": "@jeeva1398/eventa",
   "version": "0.1.2",
-  "description": "Offline AI assistant for Node.js developers: explain errors, review diffs, audit dependencies.",
+  "description": "Offline AI assistant for Node.js & TypeScript: explains crashes, reviews git diffs, audits npm dependencies. Runs a local 1 GB model, no API key.",
   "type": "module",
   "bin": {
     "eventa": "dist/index.js"
@@ -24,13 +24,29 @@
   },
   "keywords": [
     "nodejs",
+    "typescript",
     "ai",
     "cli",
-    "llm",
-    "offline",
     "code-review",
+    "ai-code-review",
+    "debugging",
+    "stack-trace",
+    "error",
+    "explain",
+    "npm-audit",
+    "dependencies",
+    "security",
+    "offline",
+    "local-llm",
+    "llm",
     "ollama",
-    "gguf"
+    "gguf",
+    "llama.cpp",
+    "express",
+    "nestjs",
+    "prisma",
+    "privacy",
+    "developer-tools"
   ],
   "repository": {
     "type": "git",
