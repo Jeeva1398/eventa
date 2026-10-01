@@ -57,7 +57,7 @@ async function run(model: string, rows: Example[]) {
   for (const row of rows) {
     const output = byId.get(row.id)?.output ?? '';
     if (row.check.task === 'explain') add('explain', scoreExplain(output, row.check.keywords));
-    if (row.check.task === 'review') add('review', scoreReview(output, row.check.issues));
+    if (row.check.task === 'review') add('review', scoreReview(output, row.check.issues, row.input));
     if (row.check.task === 'deps') add('deps', scoreDeps(output, row.input, row.check.commands, row.check.majors));
   }
   const timed = outputs.filter((o) => o.seconds !== undefined).map((o) => o.seconds!);
@@ -71,6 +71,8 @@ const METRICS: [string, string][] = [
   ['review.precision', 'Review: precision'],
   ['review.severity', 'Review: correct severity'],
   ['review.clean', 'Review: clean diff → "No issues found."'],
+  ['review.recallWithChecks', 'Review: real issues shown to the user (static checks + AI)'],
+  ['review.cleanWithChecks', 'Review: clean diff shown as clean (static checks + AI)'],
   ['deps.commands', 'Deps: exact fix commands'],
   ['deps.majors', 'Deps: major upgrades covered'],
   ['deps.noInvented', 'Deps: no invented versions'],

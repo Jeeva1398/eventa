@@ -13,6 +13,8 @@ export interface ReviewOptions {
   raw?: boolean;
 }
 
+const SEVERITY: Record<Hint['severity'], (s: string) => string> = { high: chalk.red, medium: chalk.yellow, low: chalk.dim };
+
 const git = (args: string[], cwd: string) => exec('git', args, { cwd, shell: false });
 
 async function getDiff(cwd: string, base?: string): Promise<{ diff: string; label: string }> {
@@ -50,9 +52,17 @@ export async function reviewCommand(config: Config, opts: ReviewOptions): Promis
       if (!opts.json) {
         const suffix = parts.length > 1 ? chalk.dim(` (part ${i + 1}/${parts.length})`) : '';
         console.log(chalk.bold.cyan(`▸ ${file.path}`) + suffix);
+        if (partHints.length) {
+          console.log(chalk.bold('Static checks'));
+          for (const h of partHints) console.log(`  ${SEVERITY[h.severity](`[${h.severity}]`)} line ${h.line}: ${h.message}`);
+          console.log(chalk.bold('AI review'));
+        }
       }
       const analysis = await generate(config, reviewPrompt(file.path, part, partHints), opts);
       results.push({ file: file.path, hints: partHints, analysis });
+      if (!opts.json && /^no issues found\.?$/i.test(analysis.trim()) && partHints.some((h) => h.severity !== 'low')) {
+        console.log(chalk.yellow('The AI did not confirm the static checks above. Verify them yourself.'));
+      }
       if (!opts.json) console.log();
     }
   }

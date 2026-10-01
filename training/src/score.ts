@@ -6,15 +6,23 @@ export function scoreExplain(output: string, keywords: string[]) {
   return { format: format ? 1 : 0, keywords: keywords.length ? hits / keywords.length : 1 };
 }
 
-export function scoreReview(output: string, expected: { line: number; severity: string }[]): Record<string, number> {
-  const predicted = [...output.matchAll(ISSUE_RE)].map((m) => ({ severity: m[1].toLowerCase(), line: Number(m[2]) }));
-  if (!expected.length) return { clean: predicted.length === 0 && /no issues found/i.test(output) ? 1 : 0 };
-  const matched = expected.filter((e) => predicted.some((p) => Math.abs(p.line - e.line) <= 1));
-  const severity = matched.filter((e) => predicted.some((p) => Math.abs(p.line - e.line) <= 1 && p.severity === e.severity));
+const issues = (text: string) => [...text.matchAll(ISSUE_RE)].map((m) => ({ severity: m[1].toLowerCase(), line: Number(m[2]) }));
+
+export function scoreReview(output: string, expected: { line: number; severity: string }[], input = ''): Record<string, number> {
+  const predicted = issues(output);
+  const hints = issues(input.split('Static checks flagged:')[1] ?? '').filter((h) => h.severity !== 'low');
+  const near = (a: { line: number }, b: { line: number }) => Math.abs(a.line - b.line) <= 1;
+  if (!expected.length) {
+    const clean = predicted.length === 0 && /no issues found/i.test(output);
+    return { clean: clean ? 1 : 0, cleanWithChecks: clean && !hints.length ? 1 : 0 };
+  }
+  const matched = expected.filter((e) => predicted.some((p) => near(p, e)));
+  const severity = matched.filter((e) => predicted.some((p) => near(p, e) && p.severity === e.severity));
   return {
     recall: matched.length / expected.length,
     precision: predicted.length ? Math.min(1, matched.length / predicted.length) : 0,
     severity: matched.length ? severity.length / matched.length : 0,
+    recallWithChecks: expected.filter((e) => [...predicted, ...hints].some((p) => near(p, e))).length / expected.length,
   };
 }
 

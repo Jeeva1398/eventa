@@ -13,12 +13,14 @@ describe('scorers', () => {
 
   it('scores review recall, precision and severity with ±1 line tolerance', () => {
     const out = '- [high] line 8: sql injection → params\n- [low] line 12: style → x\n- [medium] line 20: nope → x';
-    expect(scoreReview(out, [{ line: 7, severity: 'high' }, { line: 12, severity: 'medium' }])).toEqual({ recall: 1, precision: 2 / 3, severity: 0.5 });
+    expect(scoreReview(out, [{ line: 7, severity: 'high' }, { line: 12, severity: 'medium' }])).toEqual({ recall: 1, precision: 2 / 3, severity: 0.5, recallWithChecks: 1 });
   });
 
   it('requires "No issues found." and no issue lines on clean diffs', () => {
-    expect(scoreReview('No issues found.', [])).toEqual({ clean: 1 });
-    expect(scoreReview('- [low] line 3: console.log → remove', [])).toEqual({ clean: 0 });
+    expect(scoreReview('No issues found.', [])).toEqual({ clean: 1, cleanWithChecks: 1 });
+    expect(scoreReview('- [low] line 3: console.log → remove', [])).toEqual({ clean: 0, cleanWithChecks: 0 });
+    expect(scoreReview('No issues found.', [], 'Static checks flagged:\n- [medium] line 3: sync fs')).toEqual({ clean: 1, cleanWithChecks: 0 });
+    expect(scoreReview('No issues found.', [{ line: 4, severity: 'high' }], 'Static checks flagged:\n- [high] line 4: jwt.decode').recallWithChecks).toBe(1);
   });
 
   it('flags invented versions in deps advice', () => {
@@ -31,7 +33,7 @@ describe('scorers', () => {
     const rows = readFileSync(join(import.meta.dirname, '..', 'data', 'eval.jsonl'), 'utf8').trim().split('\n').map((l) => JSON.parse(l) as Example);
     for (const r of rows) {
       const c = r.check;
-      const scores = c.task === 'explain' ? scoreExplain(r.output, c.keywords) : c.task === 'review' ? scoreReview(r.output, c.issues) : scoreDeps(r.output, r.input, c.commands, c.majors);
+      const scores = c.task === 'explain' ? scoreExplain(r.output, c.keywords) : c.task === 'review' ? scoreReview(r.output, c.issues, r.input) : scoreDeps(r.output, r.input, c.commands, c.majors);
       for (const [metric, value] of Object.entries(scores)) expect({ id: r.id, metric, value }).toEqual({ id: r.id, metric, value: 1 });
     }
   });
