@@ -32,7 +32,7 @@ ollama create eventa -f training/Modelfile
 npm run eval -w eventa-training -- --models qwen2.5-coder:1.5b,eventa
 ```
 
-`src/eval.ts` writes `eval-report.md` and saves the raw model outputs in `outputs/`. It scores:
+`src/eval.ts` writes `eval-report.md` (local, not committed) and saves the raw model outputs in `outputs/`. It scores:
 - **explain:** 3-section format and the key facts mentioned
 - **review:** issue recall/precision (±1 line), severity, and clean diffs
 - **deps:** exact fix commands, coverage of major upgrades, and invented versions

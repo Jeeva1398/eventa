@@ -12,7 +12,7 @@ npx eventa deps                    # audit package.json dependencies
 - **Node-aware**: trained on Node.js errors, review pitfalls and npm ecosystem issues.
 - **Model**: `eventa-1.5b-gguf` (Qwen2.5-Coder-1.5B fine-tune, Q4_K_M, ~1 GB) on Hugging Face.
 
-> Status: under active development. See [PLAN.md](PLAN.md) for the phase-wise roadmap.
+> Status: under active development.
 
 ## Commands
 
@@ -53,7 +53,8 @@ training/       dataset builders, fine-tuning notebook, eval
 
 ## Releasing
 
-See [RELEASING.md](RELEASING.md). It covers publishing the model to Hugging Face from the notebook, and the CLI to npm via a `v*` tag.
+- **Model:** run `training/finetune.ipynb` on a free Kaggle/Colab T4 GPU. Its last cell publishes to `huggingface.co/jeeva1398/eventa-1.5b-gguf`.
+- **CLI:** bump `packages/cli/package.json`, then push a `v*` tag. GitHub Actions publishes to npm (secret `NPM_TOKEN`) and attaches standalone binaries to the GitHub Release.
 
 ## License
 

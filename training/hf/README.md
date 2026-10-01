@@ -70,7 +70,7 @@ The user message is a task instruction followed by the context (error output and
 
 ## Evaluation
 
-`training/src/eval.ts` on held-out scenarios. See `training/eval-report.md` in the repo for the latest numbers, base model vs fine-tune.
+`training/src/eval.ts` on held-out scenarios. Base-vs-fine-tune numbers are measured after each training round with `npm run eval -w eventa-training`.
 
 ## Limitations
 

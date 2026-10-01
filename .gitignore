@@ -13,3 +13,7 @@ training/outputs/
 training/.venv/
 __pycache__/
 *.ipynb_checkpoints
+
+# markdown docs stay local, except READMEs
+*.md
+!README.md
