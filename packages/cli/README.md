@@ -38,8 +38,8 @@ Global flags: `-p, --provider auto|ollama|local`, `-m, --model <name>`, `--host 
 | Setting | Default | Env |
 |---|---|---|
 | `provider` | `auto` | `EVENTA_PROVIDER` |
-| `model` (Ollama) | `qwen2.5-coder:1.5b` | `EVENTA_MODEL` |
-| `localModel` (built-in) | `qwen2.5-coder-1.5b` | `EVENTA_LOCAL_MODEL` |
+| `model` (Ollama) | `hf.co/jeeva1398/eventa-1.5b-gguf` | `EVENTA_MODEL` |
+| `localModel` (built-in) | `eventa-1.5b` | `EVENTA_LOCAL_MODEL` |
 | `ollamaHost` | `http://localhost:11434` | `EVENTA_OLLAMA_HOST` / `OLLAMA_HOST` |
 | `contextSize` | `8192` | |
 | `temperature` | `0.2` | |

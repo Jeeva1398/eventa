@@ -95,6 +95,30 @@ describe('diff + heuristics', () => {
     expect(scanAddedLines(added).map((h) => `${h.rule}@${h.line}`)).toEqual(['foreach-async@1', 'jwt-decode@2', 'open-redirect@3', 'promise-no-await@4']);
   });
 
+  it('flags queries inside loops but not after the loop ends', () => {
+    const added = [
+      'const authors = await prisma.author.findMany();',
+      'for (const a of authors) {',
+      '  a.posts = await prisma.post.findMany({ where: { authorId: a.id } });',
+      '}',
+      'const total = await prisma.post.count();',
+    ].map((text, i) => ({ line: i + 1, text }));
+    expect(scanAddedLines(added).map((h) => `${h.rule}@${h.line}`)).toEqual(['query-in-loop@3']);
+  });
+
+  it('flags assignment in if, insecure random, unchecked parseInt and weak hashes', () => {
+    const added = [
+      "  if (req.user.role = 'admin') return next();",
+      '  return Math.random().toString(36).slice(2);',
+      '  const limit = parseInt(req.query.limit);',
+      "  return crypto.createHash('md5').update(password).digest('hex');",
+      '  if (a === b) return;',
+      '  if (x => x) return;',
+      '  const n = parseInt(s, 10);',
+    ].map((text, i) => ({ line: i + 1, text }));
+    expect(scanAddedLines(added).map((h) => `${h.rule}@${h.line}`)).toEqual(['assign-in-if@1', 'insecure-random@2', 'parseint-unchecked@3', 'weak-hash@4']);
+  });
+
   it('splits long patches on hunk boundaries', () => {
     const patch = '@@ -1 +1 @@\n' + 'a'.repeat(50) + '\n@@ -9 +9 @@\n' + 'b'.repeat(50) + '\n';
     const parts = splitPatch(patch, 80);

@@ -23,8 +23,10 @@ export const MODELS: Record<string, ModelSpec> = {
   'eventa-1.5b': {
     id: 'eventa-1.5b',
     description: 'Eventa 1.5B, fine-tuned for Node.js, Q4_K_M',
-    url: 'https://huggingface.co/jeeva1398/eventa-1.5b-gguf/resolve/main/eventa-1.5b-q4_k_m.gguf',
-    file: 'eventa-1.5b-q4_k_m.gguf',
+    url: 'https://huggingface.co/jeeva1398/eventa-1.5b-gguf/resolve/b6168198ed557fc78d375699bef27369b80e0b88/eventa-1.5b-q4_k_m.gguf',
+    file: 'eventa-1.5b-q4_k_m-e179b0a3.gguf',
+    sha256: 'e179b0a33732b63ee7d615d32ce150c100242448cbb3808a468d43f2adf42dfb',
+    size: 986048192,
   },
 };
 

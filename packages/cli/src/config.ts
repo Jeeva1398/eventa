@@ -13,8 +13,8 @@ export interface Config {
 
 export const DEFAULTS: Config = {
   provider: 'auto',
-  model: 'qwen2.5-coder:1.5b',
-  localModel: 'qwen2.5-coder-1.5b',
+  model: 'hf.co/jeeva1398/eventa-1.5b-gguf',
+  localModel: 'eventa-1.5b',
   ollamaHost: 'http://localhost:11434',
   temperature: 0.2,
   contextSize: 8192,

@@ -360,7 +360,7 @@ export const CRASHES: CrashScenario[] = [
     fix: 'const {{cfg}} = { port: 3000 };\nfunction start() {\n  return `listening on ${{{cfg}}.port}`;\n}\nconsole.log(start());',
     why: 'Declare values before code that uses them runs.',
     prevent: 'Keep startup code at the bottom of the module; watch for circular imports, which cause the same error.',
-    keywords: ['before', 'initializ'],
+    keywords: ['before', 'initiali'],
     vars: { cfg: ['config', 'settings', 'options'] },
   },
   {
