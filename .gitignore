@@ -1,0 +1,15 @@
+node_modules/
+dist/
+*.log
+*.tgz
+.env
+.env.*
+coverage/
+.DS_Store
+
+# models and training artifacts
+*.gguf
+training/outputs/
+training/.venv/
+__pycache__/
+*.ipynb_checkpoints
