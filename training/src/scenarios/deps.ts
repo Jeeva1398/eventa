@@ -19,6 +19,9 @@ export const MAJORS: MajorUpgrade[] = [
   { name: 'got', current: '11.8.6', wanted: '11.8.6', latest: '14.4.7', major: true, risk: 'got 12+ is ESM-only and changed several option names; consider native `fetch` for simple calls.' },
   { name: 'webpack', current: '4.47.0', wanted: '4.47.0', latest: '5.99.9', major: true, risk: 'webpack 5 removed automatic Node.js polyfills (`Buffer`, `process`, `crypto`) for browser bundles; add `resolve.fallback` where needed. It also fixes ERR_OSSL_EVP_UNSUPPORTED on Node 17+.' },
   { name: 'dotenv', current: '8.6.0', wanted: '8.6.0', latest: '16.5.0', major: true, risk: 'Low risk: dotenv 16 keeps the same `config()` API and adds multiline values.' },
+  { name: '@nestjs/core', current: '10.4.15', wanted: '10.4.15', latest: '11.1.3', major: true, risk: 'Nest 11 requires Node 20+ and uses Express 5 by default, so wildcard routes change syntax (`*` must be named, e.g. `*splat`). Upgrade all `@nestjs/*` packages together.' },
+  { name: '@prisma/client', current: '4.16.2', wanted: '4.16.2', latest: '6.9.0', major: true, risk: 'Prisma 5 removed `rejectOnNotFound` (use `findUniqueOrThrow`); Prisma 6 needs Node 18.18+ and TypeScript 5.1+, and `Bytes` fields become `Uint8Array`. Upgrade `prisma` and `@prisma/client` to the same version and re-run `prisma generate`.' },
+  { name: 'class-validator', current: '0.13.2', wanted: '0.13.2', latest: '0.14.2', major: true, risk: 'Low risk for most apps: 0.14 fixes a security issue where unknown values skipped validation; `forbidUnknownValues` now defaults to true, so plain objects without decorators are rejected.' },
 ];
 
 export const MINORS: Outdated[] = [

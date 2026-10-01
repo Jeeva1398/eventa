@@ -9,7 +9,7 @@ npx eventa deps                    # audit package.json dependencies
 ```
 
 - **Offline & free**: runs locally via Ollama or a built-in llama.cpp runtime. No API key, no code leaves your machine.
-- **Node-aware**: trained on Node.js errors, review pitfalls and npm ecosystem issues.
+- **Node-aware**: trained on Node.js, TypeScript, Express, NestJS and Prisma errors, review pitfalls and npm ecosystem issues.
 - **Model**: `eventa-1.5b-gguf` (Qwen2.5-Coder-1.5B fine-tune, Q4_K_M, ~1 GB) on Hugging Face.
 
 > Status: under active development.
@@ -18,7 +18,7 @@ npx eventa deps                    # audit package.json dependencies
 
 | Command | What it does |
 |---|---|
-| `eventa explain` | Reads an error from stdin, `--file <log>`, `--run "<cmd>"` or arguments. Parses the stack trace, reads the failing source lines, and explains the cause and fix. |
+| `eventa explain` | Reads an error from stdin, `--file <log>`, `--run "<cmd>"` or arguments. Parses Node stack traces and TypeScript `tsc` errors, reads the failing source lines, and explains the cause and fix. Knows Node, Express, NestJS and Prisma error codes. |
 | `eventa review` | Reviews `git diff --staged` (or unstaged changes, or `--base main`) file by file. Static checks (missing await, injection, sync fs, empty catch…) guide the model. |
 | `eventa deps` | Runs `npm audit` and `npm outdated` and scans imports for unused or missing packages. Prints exact fix commands, then AI advice on upgrade risk (`--no-ai` to skip). |
 | `eventa ask <question>` | Ask any Node.js question. |

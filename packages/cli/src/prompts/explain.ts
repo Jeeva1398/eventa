@@ -10,7 +10,8 @@ export interface ExplainContext {
 
 export function explainPrompt(ctx: ExplainContext): PromptParts {
   const sections = [`Error output:\n\`\`\`\n${ctx.errorText.trim()}\n\`\`\``];
-  if (ctx.snippets.length) sections.push(`Source around the failing lines:\n\`\`\`js\n${ctx.snippets.join('\n\n')}\n\`\`\``);
+  const lang = ctx.snippets.some((s) => /^\/\/ \S+\.[cm]?tsx?\b/.test(s)) ? 'ts' : 'js';
+  if (ctx.snippets.length) sections.push(`Source around the failing lines:\n\`\`\`${lang}\n${ctx.snippets.join('\n\n')}\n\`\`\``);
   const known = knowledgeFor(ctx.code);
   if (known) sections.push(`Reference for ${ctx.code}: ${known}`);
   if (ctx.project) {
@@ -19,7 +20,7 @@ export function explainPrompt(ctx: ExplainContext): PromptParts {
   }
   return {
     instruction:
-      'Explain this Node.js error. Reply with exactly three sections:\n' +
+      'Explain this Node.js / TypeScript error. Reply with exactly three sections:\n' +
       '**Cause**: the root cause in 1-3 sentences. Name the exact expression that failed and why its value is wrong.\n' +
       '**Fix**: only the changed lines as a fenced code block, then one sentence on why it works.\n' +
       '**Prevent**: one short tip.\n' +

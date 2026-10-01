@@ -20,7 +20,14 @@ export interface ParsedError {
 const FRAME_RE = /^\s*at\s+(?:async\s+(?=[^(]*$))?(?:(.+?)\s+\()?((?:file:\/\/|node:|[A-Za-z]:[\\/]|[\\/.]).+?):(\d+)(?::(\d+))?\)?\s*$/;
 const HEADER_RE = /^((?:file:\/\/\/?)?(?:[A-Za-z]:)?[^\s:]+\.(?:[cm]?[jt]sx?)):(\d+)$/;
 const MESSAGE_RE = /^\s*(?:Uncaught\s+)?((?:[A-Z][A-Za-z]*)?Error(?:\s\[[A-Z0-9_]+\])?:\s.*)$/;
-const CODE_RE = /\b(ERR_[A-Z0-9_]+|E(?:CONNREFUSED|CONNRESET|ADDRINUSE|ACCES|NOENT|PERM|TIMEDOUT|NOTFOUND|EXIST|ISDIR|MFILE|PIPE))\b/;
+const CODE_RE = /\b(TS\d{4,5}|P[1-3]\d{3}|ERR_[A-Z0-9_]+|E(?:CONNREFUSED|CONNRESET|ADDRINUSE|ACCES|NOENT|PERM|TIMEDOUT|NOTFOUND|EXIST|ISDIR|MFILE|PIPE))\b/;
+const TSC_RE = /^(.+?\.(?:[cm]?tsx?))(?:\((\d+),(\d+)\)|:(\d+):(\d+)) ?[:-] ?error (TS\d+): (.*)$/;
+const ANSI_RE = /\u001b\[[0-9;]*m/g;
+const PATTERN_CODES: [RegExp, string][] = [
+  [/Nest can't resolve dependencies/, 'NEST_UNKNOWN_DEPENDENCIES'],
+  [/circular dependency/i, 'NEST_CIRCULAR_DEPENDENCY'],
+  [/@prisma\/client did not initialize yet/, 'PRISMA_NOT_GENERATED'],
+];
 
 function toPath(file: string): string {
   if (file.startsWith('file://')) {
@@ -45,7 +52,8 @@ function frame(fn: string | undefined, file: string, line: string, column?: stri
   };
 }
 
-export function parseStack(text: string): ParsedError {
+export function parseStack(raw: string): ParsedError {
+  const text = raw.replace(ANSI_RE, '');
   const result: ParsedError = { frames: [] };
   const seen = new Map<string, Frame>();
   const add = (f: Frame) => {
@@ -61,6 +69,12 @@ export function parseStack(text: string): ParsedError {
   };
 
   for (const line of text.split(/\r?\n/)) {
+    const t = TSC_RE.exec(line.trim());
+    if (t) {
+      add(frame(undefined, t[1], t[2] ?? t[4], t[3] ?? t[5]));
+      result.message ??= `error ${t[6]}: ${t[7]}`;
+      continue;
+    }
     const m = FRAME_RE.exec(line);
     if (m) {
       add(frame(m[1], m[2], m[3], m[4]));
@@ -71,7 +85,7 @@ export function parseStack(text: string): ParsedError {
     const msg = MESSAGE_RE.exec(line);
     if (msg && !result.message) result.message = msg[1].trim();
   }
-  result.code = CODE_RE.exec(text)?.[1];
+  result.code = PATTERN_CODES.find(([re]) => re.test(text))?.[1] ?? CODE_RE.exec(text)?.[1];
   return result;
 }
 

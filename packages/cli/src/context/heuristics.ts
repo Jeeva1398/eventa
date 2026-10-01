@@ -27,6 +27,7 @@ const RULES: Rule[] = [
   { rule: 'tls-off', severity: 'high', re: /rejectUnauthorized\s*:\s*false|NODE_TLS_REJECT_UNAUTHORIZED/, message: 'TLS certificate verification disabled' },
   { rule: 'foreach-async', severity: 'high', re: /\.forEach\(\s*async\b/, message: 'forEach does not await async callbacks; the caller continues before they finish' },
   { rule: 'jwt-decode', severity: 'high', re: /\bjwt\.decode\(/, message: 'jwt.decode does not verify the signature' },
+  { rule: 'prisma-raw-unsafe', severity: 'high', re: /\$(queryRawUnsafe|executeRawUnsafe)\(\s*`[^`]*\$\{/, message: 'Prisma raw "Unsafe" query with interpolation, possible SQL injection' },
   { rule: 'open-redirect', severity: 'high', re: /\bredirect\(\s*req\.(query|body|params)\b/, message: 'redirect target comes from user input (open redirect)' },
 ];
 

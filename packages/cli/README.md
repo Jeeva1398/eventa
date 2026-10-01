@@ -16,10 +16,10 @@ Requires Node.js 20+. On first use Eventa installs a small llama.cpp runtime (~8
 Give it an error in any of these ways:
 - pipe it in: `node app.js 2>&1 | eventa explain`
 - read it from a log: `eventa explain --file crash.log`
-- run a command: `eventa explain --run "npm test"`
+- run a command: `eventa explain --run "npm test"` or `eventa explain --run "npx tsc --noEmit"` for TypeScript compile errors
 - paste it as arguments
 
-Eventa parses the stack trace, reads the source lines it points to in your project, and answers with **Cause**, **Fix** and **Prevent**. Known Node error codes (`ERR_REQUIRE_ESM`, `ECONNREFUSED`, `EADDRINUSE`, …) come with built-in reference notes.
+Eventa parses the stack trace or `tsc` output, reads the source lines it points to in your project, and answers with **Cause**, **Fix** and **Prevent**. Known error codes come with built-in reference notes: Node (`ERR_REQUIRE_ESM`, `ECONNREFUSED`, …), TypeScript (`TS2345`, `TS18048`, …), Prisma (`P2002`, `P2025`, …) and NestJS dependency-injection errors.
 
 ### `eventa review`
 Reviews `git diff --staged`, falling back to unstaged changes. Use `--base main` to review everything since `main`. Each file gets static checks first (missing `await`, SQL/command injection, `eval`, sync fs, empty `catch`, disabled TLS, hard-coded secrets), then the model confirms or dismisses them and reports `- [severity] line N: problem → fix`.

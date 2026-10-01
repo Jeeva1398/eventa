@@ -15,12 +15,14 @@ import { reviewPrompt } from '../../packages/cli/src/prompts/review.js';
 import { type DepsCase, randomDepsCase, rng } from './scenarios/deps.js';
 import { CRASHES } from './scenarios/explain.js';
 import { MORE_CRASHES } from './scenarios/explain-more.js';
+import { NEST_PRISMA_CRASHES, TS_CRASHES } from './scenarios/explain-ts.js';
 import { REVIEWS } from './scenarios/review.js';
 import { MORE_REVIEWS } from './scenarios/review-more.js';
 import { HIDDEN_BUGS } from './scenarios/review-hidden.js';
+import { TS_REVIEWS } from './scenarios/review-ts.js';
 import type { CrashScenario, Example, ReviewScenario, Vars } from './types.js';
 
-export const EVAL_SCENARIOS = new Set(['tdz', 'invalid-url', 'write-after-end', 'heap-oom-static', 'jwt-none-verify', 'foreach-async', 'clean-execfile', 'parseint-radix-and-nan', 'clean-validated-input', 'reduce-empty']);
+export const EVAL_SCENARIOS = new Set(['tdz', 'invalid-url', 'write-after-end', 'heap-oom-static', 'jwt-none-verify', 'foreach-async', 'clean-execfile', 'parseint-radix-and-nan', 'clean-validated-input', 'reduce-empty', 'ts-unknown-catch', 'nest-interface-injection', 'prisma-not-found-p2025', 'prisma-n-plus-one', 'nest-clean-controller']);
 const ROOTS = ['C:\\Users\\dev\\shop', 'D:\\work\\inventory', '/home/dev/api', '/Users/sam/projects/billing', '/app', '/srv/orders-service'];
 const EXTRA_DEPS = ['express', 'pino', 'zod', 'dotenv', 'pg', 'mongoose', 'axios', 'fastify', 'ioredis'];
 const NODE_VERSIONS = ['18.20.4', '20.18.1', '22.12.0'];
@@ -68,7 +70,14 @@ const cleanup = (dir: string) => {
   }
 };
 
-const fence = (code: string) => (/^(npm|npx) /.test(code) ? 'bash' : code.startsWith('// package.json') ? 'jsonc' : 'js');
+const TSC = `node "${join(import.meta.dirname, '..', '..', 'node_modules', 'typescript', 'bin', 'tsc')}" -p .`;
+const isTs = (s: CrashScenario) => /^(ts|nest|prisma)-/.test(s.id) || Object.keys(s.files).some((f) => f.endsWith('.ts'));
+
+function fence(code: string, s: CrashScenario) {
+  if (/^(npm|npx) |^[A-Z_]+=/.test(code)) return 'bash';
+  if (code.startsWith('// package.json')) return 'jsonc';
+  return isTs(s) ? 'ts' : 'js';
+}
 
 function explainExample(s: CrashScenario, variant: number): Example | null {
   const dir = mkdtempSync(join(tmpdir(), 'eventa-crash-'));
@@ -78,7 +87,7 @@ function explainExample(s: CrashScenario, variant: number): Example | null {
     if (s.stderr) {
       errorText = s.stderr.replaceAll('{{root}}', dir);
     } else {
-      const r = spawnSync(s.run!, { cwd: dir, shell: true, encoding: 'utf8', timeout: 10000 });
+      const r = spawnSync(s.run!.replaceAll('{{tsc}}', TSC), { cwd: dir, shell: true, encoding: 'utf8', timeout: 30000 });
       errorText = `${r.stderr ?? ''}${r.stdout ? `\n${r.stdout}` : ''}`.trim();
       if (r.error) console.warn(`${s.id}#${variant}: ${r.error.message}`);
       if (r.status === 0 || !parseStack(errorText).message) {
@@ -99,7 +108,7 @@ function explainExample(s: CrashScenario, variant: number): Example | null {
       snippets: snippets.map((sn) => (posix ? sn.replace(/^\/\/ (\S+)/, (_m, p: string) => `// ${p.replace(/\\/g, '/')}`) : sn)),
       project: { nodeVersion: errorText.match(/Node\.js v([\d.]+)/)?.[1] ?? process.versions.node, moduleType: pkg.type === 'module' ? 'ESM' : 'CommonJS', dependencies: deps },
     });
-    const output = `**Cause**: ${s.cause}\n\n**Fix**:\n\`\`\`${fence(s.fix)}\n${s.fix}\n\`\`\`\n${s.why}\n\n**Prevent**: ${s.prevent}`;
+    const output = `**Cause**: ${s.cause}\n\n**Fix**:\n\`\`\`${fence(s.fix, s)}\n${s.fix}\n\`\`\`\n${s.why}\n\n**Prevent**: ${s.prevent}`;
     return { id: `explain/${s.id}/${variant}`, scenario: s.id, task: 'explain', system: SYSTEM_PROMPT, ...parts, output, check: { task: 'explain', keywords: s.keywords } };
   } finally {
     cleanup(dir);
@@ -163,12 +172,12 @@ function main() {
   const evals: Example[] = [];
   const add = (e: Example | null) => e && (EVAL_SCENARIOS.has(e.scenario) || e.scenario === 'deps-eval' ? evals : train).push(e);
 
-  for (const scenario of [...CRASHES, ...MORE_CRASHES]) {
+  for (const scenario of [...CRASHES, ...MORE_CRASHES, ...TS_CRASHES, ...NEST_PRISMA_CRASHES]) {
     expand(scenario).forEach((s, i) => {
       for (let r = 0; r < (EVAL_SCENARIOS.has(s.id) ? 1 : repeats); r++) add(explainExample(s, i * repeats + r));
     });
   }
-  for (const scenario of [...REVIEWS, ...MORE_REVIEWS, ...HIDDEN_BUGS]) expand(scenario).forEach((s, i) => add(reviewExample(s, i)));
+  for (const scenario of [...REVIEWS, ...MORE_REVIEWS, ...HIDDEN_BUGS, ...TS_REVIEWS]) expand(scenario).forEach((s, i) => add(reviewExample(s, i)));
   for (let i = 0; i < Number(process.env.DEPS_TRAIN ?? 150); i++) add(depsExample(i, 'train'));
   for (let i = 0; i < Number(process.env.DEPS_EVAL ?? 15); i++) add(depsExample(i, 'eval'));
 

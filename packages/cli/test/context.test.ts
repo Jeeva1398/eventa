@@ -29,6 +29,21 @@ describe('parseStack', () => {
     expect(p.frames.some((f) => f.dependency)).toBe(true);
   });
 
+  it('parses tsc errors in plain and pretty format', () => {
+    const plain = parseStack("src/users.ts(12,5): error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.\nsrc/db.ts(3,1): error TS2307: Cannot find module './conf'.");
+    expect(plain.code).toBe('TS2345');
+    expect(plain.message).toBe("error TS2345: Argument of type 'string' is not assignable to parameter of type 'number'.");
+    expect(plain.frames.map((f) => `${f.file}:${f.line}:${f.column}`)).toEqual(['src/users.ts:12:5', 'src/db.ts:3:1']);
+    const pretty = parseStack("\u001b[96msrc/app.ts\u001b[0m:\u001b[93m7\u001b[0m:\u001b[93m3\u001b[0m - \u001b[91merror\u001b[0m\u001b[90m TS2532: \u001b[0mObject is possibly 'undefined'.");
+    expect(pretty.frames[0]).toMatchObject({ file: 'src/app.ts', line: 7, column: 3 });
+    expect(pretty.code).toBe('TS2532');
+  });
+
+  it('recognises NestJS and Prisma failures', () => {
+    expect(parseStack("Error: Nest can't resolve dependencies of the UsersService (?). Please make sure that the argument PrismaService at index [0] is available in the UsersModule context.").code).toBe('NEST_UNKNOWN_DEPENDENCIES');
+    expect(parseStack("PrismaClientKnownRequestError:\nUnique constraint failed on the fields: (`email`)\n  code: 'P2002',").code).toBe('P2002');
+  });
+
   it('finds system error codes', () => {
     expect(parseStack('Error: connect ECONNREFUSED 127.0.0.1:5432').code).toBe('ECONNREFUSED');
   });
