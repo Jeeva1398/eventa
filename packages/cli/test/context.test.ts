@@ -5,7 +5,8 @@ import { describe, expect, it } from 'vitest';
 import { findUnusedAndMissing, fixPlan, packageName, parseAudit, parseOutdated, readPackageJson, scanImports } from '../src/context/deps.js';
 import { parseDiff, splitPatch } from '../src/context/diff.js';
 import { scanAddedLines } from '../src/context/heuristics.js';
-import { parseStack, readSnippet, snippetsFor, userFrames } from '../src/context/stackParser.js';
+import { insideProject, parseStack, readSnippet, snippetsFor, userFrames } from '../src/context/stackParser.js';
+import { stripControl } from '../src/ui/render.js';
 import { truncateMiddle } from '../src/context/tokens.js';
 import { explainPrompt } from '../src/prompts/explain.js';
 
@@ -182,5 +183,21 @@ describe('prompts', () => {
     const t = truncateMiddle('a'.repeat(1000) + 'b'.repeat(1000), 100);
     expect(t.length).toBeLessThan(400);
     expect(t.startsWith('a') && t.endsWith('b')).toBe(true);
+  });
+});
+
+describe('hardening', () => {
+  it('never reads files outside the project from a pasted stack trace', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'eventa-'));
+    const outside = join(tmpdir(), `eventa-secret-${Date.now()}.js`);
+    writeFileSync(outside, 'const secret = 1;');
+    writeFileSync(join(dir, 'app.js'), 'x');
+    const parsed = parseStack(`Error: x\n    at a (${outside}:1:1)\n    at b (${join(dir, 'app.js')}:1:1)\n    at c (${join(dir, 'node_modules', 'p', 'i.js')}:1:1)`);
+    expect(userFrames(parsed, dir).map((f) => f.file)).toEqual([join(dir, 'app.js')]);
+    expect(insideProject(join(dir, '..', 'x.js'), dir)).toBe(false);
+  });
+
+  it('strips terminal control sequences from model output', () => {
+    expect(stripControl('ok\u001b]0;pwned\u0007 \u001b[2Jdone\n')).toBe('ok]0;pwned [2Jdone\n');
   });
 });

@@ -1,0 +1,7 @@
+{
+  "name": "eventa-runtime",
+  "private": true,
+  "dependencies": {
+    "node-llama-cpp": "3.22.1"
+  }
+}

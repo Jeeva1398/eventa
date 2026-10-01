@@ -1,7 +1,7 @@
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { configDir } from '../config.js';
 import { exec } from '../context/exec.js';
 
@@ -41,14 +41,38 @@ export async function installRuntime(log: (msg: string) => void = () => {}): Pro
   if (Number(process.versions.node.split('.')[0]) < 20) {
     throw new Error('The built-in runtime needs Node.js 20 or newer. Upgrade Node, or use Ollama.');
   }
+  if (!existsSync(join(LOCK_DIR, 'package-lock.json'))) {
+    throw new Error('The built-in runtime is installed by the npm package. Use `npx @jeeva1398/eventa`, or run Ollama with this binary.');
+  }
   const dir = runtimeDir();
+  const platform = platformPackage();
+  rmSync(join(dir, 'node_modules'), { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
-  const manifest = join(dir, 'package.json');
-  if (!existsSync(manifest)) writeFileSync(manifest, JSON.stringify({ name: 'eventa-runtime', private: true }, null, 2));
+  for (const f of ['package.json', 'package-lock.json']) copyFileSync(join(LOCK_DIR, f), join(dir, f));
+  const lock = JSON.parse(readFileSync(join(dir, 'package-lock.json'), 'utf8')) as LockFile;
+  const expected = lock.packages[`node_modules/${platform}`]?.integrity;
+  if (!expected) throw new Error(`No pinned runtime binary for ${platform}.`);
+
   log(`Installing the local runtime (node-llama-cpp ${LLAMA_VERSION}, about 80 MB, one time)…`);
-  const r = await exec('npm', ['install', `node-llama-cpp@${LLAMA_VERSION}`, `${platformPackage()}@${LLAMA_VERSION}`, '--omit=optional', '--no-audit', '--no-fund', '--loglevel=error'], { cwd: dir });
-  if (r.code !== 0) throw new Error(`Runtime install failed:\n${r.stderr.trim()}`);
+  const npm = (args: string[]) => exec('npm', [...args, '--ignore-scripts', '--no-audit', '--no-fund', '--loglevel=error'], { cwd: dir });
+  const ci = await npm(['ci', '--omit=optional']);
+  if (ci.code !== 0) throw new Error(`Runtime install failed:\n${ci.stderr.trim()}`);
+  const bin = await npm(['install', '--no-save', '--omit=optional', `${platform}@${LLAMA_VERSION}`]);
+  if (bin.code !== 0) throw new Error(`Runtime install failed:\n${bin.stderr.trim()}`);
+
+  const installed = (JSON.parse(readFileSync(join(dir, 'node_modules', '.package-lock.json'), 'utf8')) as LockFile).packages[`node_modules/${platform}`]?.integrity;
+  if (installed !== expected) {
+    rmSync(join(dir, 'node_modules'), { recursive: true, force: true });
+    throw new Error(`Integrity check failed for ${platform}: expected ${expected}, got ${installed ?? 'nothing'}.`);
+  }
 }
+
+interface LockFile {
+  packages: Record<string, { integrity?: string }>;
+}
+
+// Shipped next to dist/ in the npm package: a pinned lockfile so the runtime install is reproducible.
+const LOCK_DIR = fileURLToPath(new URL('../runtime/', import.meta.url));
 
 let cached: Promise<LlamaModule> | undefined;
 

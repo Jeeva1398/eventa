@@ -36,6 +36,15 @@ With `provider: auto` (the default), Eventa uses Ollama if it is running and has
 - On first use it installs `node-llama-cpp` with only the CPU binary for your platform (~80 MB) into `~/.eventa/runtime`. It then downloads the GGUF model (~1 GB, SHA-256 verified, resumable) into `~/.eventa/models`.
 - After that, everything runs offline. Use `eventa model list | pull | use | rm` to manage models.
 
+## Privacy & security
+
+- **Your code stays local.** It is only sent to the local model, or to Ollama at your configured host.
+- **First local use** downloads the runtime from a pinned lockfile, with install scripts disabled, and the model from a pinned Hugging Face commit with SHA-256 verification.
+- **`eventa deps`** runs `npm audit` / `npm outdated`, which send dependency names and versions to the npm registry.
+- **Safeguards:** `explain` reads only files inside your project, and AI output has terminal control sequences stripped and is never executed.
+
+Report vulnerabilities privately: https://github.com/Jeeva1398/eventa/security/advisories/new
+
 ## Development
 
 Requirements: Node >= 20. [Ollama](https://ollama.com) is optional.

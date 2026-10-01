@@ -89,11 +89,17 @@ export function parseStack(raw: string): ParsedError {
   return result;
 }
 
+// Only read source files inside the project, never arbitrary paths from a pasted trace.
+export function insideProject(file: string, cwd: string): boolean {
+  const rel = relative(resolve(cwd), resolve(file));
+  return rel !== '' && !rel.startsWith('..') && !isAbsolute(rel) && !/(^|[\\/])node_modules([\\/]|$)/.test(rel);
+}
+
 export function userFrames(parsed: ParsedError, cwd: string, limit = 3): Frame[] {
   return parsed.frames
     .filter((f) => !f.internal && !f.dependency)
     .map((f) => ({ ...f, file: isAbsolute(f.file) ? f.file : resolve(cwd, f.file) }))
-    .filter((f) => existsSync(f.file))
+    .filter((f) => insideProject(f.file, cwd) && existsSync(f.file))
     .slice(0, limit);
 }
 

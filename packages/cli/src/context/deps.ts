@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { builtinModules } from 'node:module';
 import { extname, join } from 'node:path';
 import { exec } from './exec.js';
@@ -135,9 +135,11 @@ export function scanImports(cwd: string, maxFiles = 3000): Set<string> {
       if (count >= maxFiles) return;
       if (e.isDirectory()) {
         if (!SKIP_DIRS.has(e.name) && !e.name.startsWith('.')) walk(join(dir, e.name));
-      } else if (SOURCE_EXT.has(extname(e.name)) || /\.config\.[cm]?[jt]s$/.test(e.name)) {
+      } else if ((SOURCE_EXT.has(extname(e.name)) || /\.config\.[cm]?[jt]s$/.test(e.name)) && !/\.min\.[cm]?js$/.test(e.name)) {
+        const path = join(dir, e.name);
+        if (statSync(path).size > 1_000_000) continue;
         count++;
-        const text = readFileSync(join(dir, e.name), 'utf8');
+        const text = readFileSync(path, 'utf8');
         for (const m of text.matchAll(IMPORT_RE)) {
           const name = packageName(m[1] ?? m[2] ?? m[3] ?? m[4]);
           if (name) found.add(name);

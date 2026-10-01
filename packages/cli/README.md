@@ -46,6 +46,24 @@ Global flags: `-p, --provider auto|ollama|local`, `-m, --model <name>`, `--host 
 | `contextSize` | `8192` | |
 | `temperature` | `0.2` | |
 
+## Privacy & security
+
+Your code is only sent to the model running on your machine: the built-in runtime, or Ollama at `ollamaHost`. If you point that at a remote server, code goes there. Eventa makes these network calls:
+
+| When | Where | What is sent |
+|---|---|---|
+| First local use | npm registry | Downloads the runtime from a **pinned lockfile** with integrity hashes and **install scripts disabled** |
+| First local use | huggingface.co | Downloads the model from a pinned commit and verifies its **SHA-256** |
+| `eventa deps` | npm registry | Runs `npm audit` / `npm outdated`, which send your dependency names and versions (exactly as running them yourself would) |
+
+Other safeguards:
+- `explain` only reads source files inside the current project, never arbitrary paths from a pasted stack trace.
+- Model output is printed as text with terminal control sequences stripped, and is never executed.
+- `--run` executes only the command you type.
+- The npm package is published with provenance from GitHub Actions.
+
+Found a security problem? Please open a private advisory: https://github.com/Jeeva1398/eventa/security/advisories/new
+
 ## Limitations
 This is a 1.5B model. It is fast and private, but it can be wrong, so treat its answers as a strong hint, not a verdict. The facts Eventa computes itself (stack frames, audit fixes, unused/missing packages, static checks) are deterministic.
 

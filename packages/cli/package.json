@@ -1,6 +1,6 @@
 {
   "name": "@jeeva1398/eventa",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Offline AI assistant for Node.js developers: explain errors, review diffs, audit dependencies.",
   "type": "module",
   "bin": {
@@ -8,6 +8,7 @@
   },
   "files": [
     "dist",
+    "runtime",
     "README.md",
     "LICENSE"
   ],

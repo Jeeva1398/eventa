@@ -20,6 +20,9 @@ export interface RenderOptions {
   out?: NodeJS.WritableStream & { isTTY?: boolean };
 }
 
+// Model output can be steered by repo content, so never let it emit terminal escape/control sequences.
+export const stripControl = (s: string) => s.replace(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/g, '');
+
 // Streams tokens but formats whole lines, so markdown styling never splits mid-token.
 export async function renderStream(tokens: AsyncIterable<string>, opts: RenderOptions = {}): Promise<string> {
   const out = opts.out ?? process.stdout;
@@ -30,8 +33,9 @@ export async function renderStream(tokens: AsyncIterable<string>, opts: RenderOp
   let pending = '';
 
   try {
-    for await (const token of tokens) {
+    for await (const raw of tokens) {
       spinner?.stop();
+      const token = stripControl(raw);
       full += token;
       if (!pretty) {
         out.write(token);
