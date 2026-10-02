@@ -37,6 +37,8 @@ npx @jeeva1398/eventa review
 npx @jeeva1398/eventa deps
 ```
 
+**In GitHub Actions.** It reviews every pull request on the runner and posts one comment: `uses: Jeeva1398/eventa@v0.2.0`. See the [repo README](https://github.com/Jeeva1398/eventa#review-pull-requests-in-github-actions).
+
 **With Ollama:**
 
 ```bash
