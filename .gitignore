@@ -17,3 +17,4 @@ __pycache__/
 # markdown docs stay local, except READMEs
 *.md
 !README.md
+launch/
