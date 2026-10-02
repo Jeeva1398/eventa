@@ -72,7 +72,9 @@ runs:
         fi
         report="$RUNNER_TEMP/eventa-review.md"
         code=0
-        npx -y "@jeeva1398/eventa@$VERSION" review --base "$base" --max-files "$MAX_FILES" --markdown --fail-on "$FAIL_ON" > "$report" || code=$?
+        cli="$RUNNER_TEMP/eventa-cli"
+        npm install --prefix "$cli" --no-save --no-audit --no-fund "@jeeva1398/eventa@$VERSION" >&2
+        node "$cli/node_modules/@jeeva1398/eventa/dist/index.js" review --base "$base" --max-files "$MAX_FILES" --markdown --fail-on "$FAIL_ON" > "$report" || code=$?
         cat "$report" >> "$GITHUB_STEP_SUMMARY"
         echo "report=$report" >> "$GITHUB_OUTPUT"
         echo "code=$code" >> "$GITHUB_OUTPUT"
