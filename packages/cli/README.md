@@ -15,6 +15,8 @@ npx @jeeva1398/eventa deps                          # vulnerabilities, outdated,
 
 Or install once with `npm i -g @jeeva1398/eventa`, then run `eventa explain`, `eventa review`, and so on.
 
+![eventa explaining a crash and reviewing a diff](https://raw.githubusercontent.com/Jeeva1398/eventa/main/docs/demo.gif)
+
 Requires Node.js 20+. On first use Eventa installs a small llama.cpp runtime (~80 MB) and downloads the model (~1 GB, checksum-verified). If [Ollama](https://ollama.com) is running, Eventa uses it instead.
 
 ## Commands

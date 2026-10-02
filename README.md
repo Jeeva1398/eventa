@@ -17,6 +17,8 @@ npx @jeeva1398/eventa deps                          # fix vulnerabilities, plan 
 
 Or install once with `npm i -g @jeeva1398/eventa`, then use the `eventa` command. Requires Node 20+.
 
+![eventa explaining a crash and reviewing a diff](docs/demo.gif)
+
 ### What it looks like
 
 ```text
