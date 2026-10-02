@@ -62,6 +62,8 @@ program
   .option('-b, --base <ref>', 'review all changes since a branch or commit, e.g. main')
   .option('--max-files <n>', 'maximum files to review', '20')
   .option('--json', 'print JSON output')
+  .option('--markdown', 'print a Markdown report (for PR comments)')
+  .option('--fail-on <severity>', 'exit with code 1 if the AI reports an issue at this severity or above: high | medium | low | none')
   .action(async (opts: ReviewOptions, cmd: Command) => {
     const { config, raw } = configFrom(cmd);
     await reviewCommand(config, { ...opts, raw });

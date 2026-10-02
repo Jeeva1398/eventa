@@ -43,6 +43,7 @@ function fromEnv(env: NodeJS.ProcessEnv): Partial<Config> {
   if (env.EVENTA_MODEL) out.model = env.EVENTA_MODEL;
   if (env.EVENTA_LOCAL_MODEL) out.localModel = env.EVENTA_LOCAL_MODEL;
   if (env.EVENTA_PROVIDER) out.provider = env.EVENTA_PROVIDER as Config['provider'];
+  if (env.EVENTA_TEMPERATURE && !Number.isNaN(Number(env.EVENTA_TEMPERATURE))) out.temperature = Number(env.EVENTA_TEMPERATURE);
   const host = env.EVENTA_OLLAMA_HOST ?? env.OLLAMA_HOST;
   if (host) out.ollamaHost = host.startsWith('http') ? host : `http://${host}`;
   return out;

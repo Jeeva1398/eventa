@@ -49,7 +49,42 @@ Global flags: `-p, --provider auto|ollama|local`, `-m, --model <name>`, `--host 
 | `localModel` (built-in) | `eventa-1.5b` | `EVENTA_LOCAL_MODEL` |
 | `ollamaHost` | `http://localhost:11434` | `EVENTA_OLLAMA_HOST` / `OLLAMA_HOST` |
 | `contextSize` | `8192` | |
-| `temperature` | `0.2` | |
+| `temperature` | `0.2` | `EVENTA_TEMPERATURE` |
+
+## Review pull requests in GitHub Actions
+
+Eventa can review every pull request and post the findings as one comment, which it updates on each push. The model runs on the GitHub runner, so your code is not sent to any AI service.
+
+```yaml
+# .github/workflows/eventa.yml
+name: eventa
+on: pull_request
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: Jeeva1398/eventa@v0.2.0
+        with:
+          fail-on: none   # or high | medium | low to fail the check
+```
+
+| Input | Default | |
+|---|---|---|
+| `fail-on` | `none` | Fail the job when the AI reports an issue at this severity or above. |
+| `max-files` | `20` | Maximum number of files to review. |
+| `base` | PR base | Git ref to diff against. |
+| `comment` | `true` | Post or update the PR comment. The report is always written to the job summary. |
+| `version` | the action's tag | `@jeeva1398/eventa` version to run. |
+
+The first run downloads the runtime and model (~1 GB). Later runs restore them from the Actions cache. Reviews run at temperature 0, so re-running a job gives the same result. Pull requests from forks get a read-only token, so for those the report goes only to the job summary.
+
+Locally, `eventa review --markdown` prints the same report, and `--fail-on high` sets exit code 1 when the review finds a high-severity issue.
 
 ## Privacy & security
 

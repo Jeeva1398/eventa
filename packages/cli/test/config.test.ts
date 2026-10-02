@@ -18,6 +18,8 @@ describe('config', () => {
     expect(loadConfig({}, {}).model).toBe('from-file');
     expect(loadConfig({}, { EVENTA_MODEL: 'from-env' }).model).toBe('from-env');
     expect(loadConfig({ model: 'from-flag' }, { EVENTA_MODEL: 'from-env' }).model).toBe('from-flag');
+    expect(loadConfig({}, { EVENTA_TEMPERATURE: '0' }).temperature).toBe(0);
+    expect(loadConfig({}, { EVENTA_TEMPERATURE: 'x' }).temperature).toBe(0.2);
     expect(loadConfig({ model: undefined }, {}).model).toBe('from-file');
   });
 

@@ -1,6 +1,6 @@
 {
   "name": "@jeeva1398/eventa",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "Offline AI assistant for Node.js & TypeScript: explains crashes, reviews git diffs, audits npm dependencies. Runs a local 1 GB model, no API key.",
   "type": "module",
   "bin": {

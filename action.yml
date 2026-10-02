@@ -1,0 +1,104 @@
+name: Eventa review
+description: Offline AI code review for Node.js and TypeScript pull requests. Runs a local 1 GB model on the runner, no API key.
+author: Jeeva1398
+branding:
+  icon: check-circle
+  color: green
+
+inputs:
+  version:
+    description: '@jeeva1398/eventa version to run. Defaults to the version of this action, or latest.'
+    default: ''
+  base:
+    description: Git ref to diff against. Defaults to the pull request base (the first parent of the merge commit).
+    default: ''
+  max-files:
+    description: Maximum number of files to review.
+    default: '20'
+  fail-on:
+    description: 'Fail the job when the AI reports an issue at this severity or above: high, medium, low or none.'
+    default: none
+  comment:
+    description: Post (or update) a comment on the pull request.
+    default: 'true'
+  github-token:
+    description: Token used to post the comment. Needs pull-requests write permission.
+    default: ${{ github.token }}
+
+outputs:
+  report:
+    description: Path to the Markdown report.
+    value: ${{ steps.review.outputs.report }}
+
+runs:
+  using: composite
+  steps:
+    - id: setup
+      shell: bash
+      env:
+        INPUT_VERSION: ${{ inputs.version }}
+        ACTION_REF: ${{ github.action_ref }}
+      run: |
+        v="$INPUT_VERSION"
+        if [ -z "$v" ]; then
+          case "$ACTION_REF" in v[0-9]*.*.*) v="${ACTION_REF#v}" ;; *) v=latest ;; esac
+        fi
+        v="$(npm view "@jeeva1398/eventa@$v" version | tail -n 1)"
+        echo "version=$v" >> "$GITHUB_OUTPUT"
+        echo "home=$RUNNER_TEMP/eventa-home" >> "$GITHUB_OUTPUT"
+
+    - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      with:
+        path: |
+          ${{ steps.setup.outputs.home }}/models
+          ${{ steps.setup.outputs.home }}/runtime
+        key: eventa-${{ runner.os }}-${{ runner.arch }}-${{ steps.setup.outputs.version }}
+
+    - id: review
+      shell: bash
+      env:
+        EVENTA_HOME: ${{ steps.setup.outputs.home }}
+        EVENTA_PROVIDER: local
+        EVENTA_TEMPERATURE: '0'
+        VERSION: ${{ steps.setup.outputs.version }}
+        BASE: ${{ inputs.base }}
+        MAX_FILES: ${{ inputs.max-files }}
+        FAIL_ON: ${{ inputs.fail-on }}
+      run: |
+        base="$BASE"
+        if [ -z "$base" ]; then
+          git rev-parse -q --verify HEAD^1 >/dev/null || git fetch --no-tags --deepen=1 origin "$(git rev-parse HEAD)"
+          base=HEAD^1
+        fi
+        report="$RUNNER_TEMP/eventa-review.md"
+        code=0
+        npx -y "@jeeva1398/eventa@$VERSION" review --base "$base" --max-files "$MAX_FILES" --markdown --fail-on "$FAIL_ON" > "$report" || code=$?
+        cat "$report" >> "$GITHUB_STEP_SUMMARY"
+        echo "report=$report" >> "$GITHUB_OUTPUT"
+        echo "code=$code" >> "$GITHUB_OUTPUT"
+
+    - if: inputs.comment == 'true' && github.event.pull_request.number
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        REPO: ${{ github.repository }}
+        PR: ${{ github.event.pull_request.number }}
+        REPORT: ${{ steps.review.outputs.report }}
+      run: |
+        [ -s "$REPORT" ] || exit 0
+        id="$(gh api "repos/$REPO/issues/$PR/comments" --paginate --jq '.[] | select(.body | startswith("<!-- eventa-review -->")) | .id' | head -n 1)" || id=""
+        if [ -n "$id" ]; then
+          gh api -X PATCH "repos/$REPO/issues/comments/$id" -F body=@"$REPORT" >/dev/null && exit 0
+        else
+          gh api "repos/$REPO/issues/$PR/comments" -F body=@"$REPORT" >/dev/null && exit 0
+        fi
+        echo "::warning::Could not post the Eventa comment. Pull requests from forks get a read-only token; the report is in the job summary."
+
+    - if: steps.review.outputs.code != '0'
+      shell: bash
+      env:
+        CODE: ${{ steps.review.outputs.code }}
+        REPORT: ${{ steps.review.outputs.report }}
+      run: |
+        if [ -s "$REPORT" ]; then echo "::error::Eventa found issues at or above the fail-on severity."; else echo "::error::eventa review failed (exit $CODE)."; fi
+        exit 1
