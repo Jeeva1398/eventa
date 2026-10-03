@@ -96,6 +96,11 @@ describe('diff + heuristics', () => {
     expect(scanAddedLines(added).map((h) => `${h.rule}@${h.line}`)).toEqual(['foreach-async@1', 'jwt-decode@2', 'open-redirect@3', 'promise-no-await@4']);
   });
 
+  it('does not flag synchronous response sends, but still flags other send calls', () => {
+    const added = ['  res.send(user);', '  reply.send({ ok: true });', '  socket.send(buf);', '  mailer.send(message);'].map((text, i) => ({ line: i + 1, text }));
+    expect(scanAddedLines(added).map((h) => `${h.rule}@${h.line}`)).toEqual(['promise-no-await@4']);
+  });
+
   it('flags queries inside loops but not after the loop ends', () => {
     const added = [
       'const authors = await prisma.author.findMany();',

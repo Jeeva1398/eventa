@@ -20,7 +20,7 @@ const RULES: Rule[] = [
   { rule: 'sql-injection', severity: 'high', re: /\b(query|execute|raw)\s*\(\s*`\s*(SELECT|INSERT|UPDATE|DELETE)[^`]*\$\{/i, message: 'SQL built with template interpolation, use parameters' },
   { rule: 'sync-fs', severity: 'medium', re: /\b(readFileSync|writeFileSync|readdirSync|existsSync|statSync)\s*\(/, message: 'synchronous fs call, blocks the event loop if used in a request path' },
   { rule: 'secret', severity: 'high', re: /\b(api[_-]?key|secret|password|token)\b\s*[:=]\s*['"][^'"]{8,}['"]/i, message: 'possible hard-coded secret' },
-  { rule: 'promise-no-await', severity: 'high', re: /^\s*(?!return\b|await\b|const\b|let\b|var\b)[\w.]+\.(save|create|update\w*|delete\w*|insert\w*|send|fetch|query|find\w+|remove\w*)\s*\([^)]*\)\s*;?\s*$/, message: 'async-looking call without await or return, result and errors are dropped' },
+  { rule: 'promise-no-await', severity: 'high', re: /^\s*(?!return\b|await\b|const\b|let\b|var\b|(?:res|reply|response|socket|ws|process)\.send\b)[\w.]+\.(save|create|update\w*|delete\w*|insert\w*|send|fetch|query|find\w+|remove\w*)\s*\([^)]*\)\s*;?\s*$/, message: 'async-looking call without await or return, result and errors are dropped' },
   { rule: 'empty-catch', severity: 'medium', re: /catch\s*(\(\w*\))?\s*\{\s*\}/, message: 'empty catch swallows errors' },
   { rule: 'then-no-catch', severity: 'medium', re: /\.then\([^)]*\)\s*;\s*$/, message: '.then() without .catch(), possible unhandled rejection' },
   { rule: 'console-log', severity: 'low', re: /\bconsole\.log\(/, message: 'leftover console.log' },
