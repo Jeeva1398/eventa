@@ -43,19 +43,15 @@ export async function hubChecksum(url: string, fetchImpl: typeof fetch = fetch):
   }
 }
 
-export async function downloadModel(
-  model: ModelSpec,
-  onProgress?: (p: Progress) => void,
-  fetchImpl: typeof fetch = fetch,
-): Promise<string> {
-  const target = modelPath(model);
-  if (existsSync(target)) return target;
-  const spec = model.sha256 ? model : { ...model, ...(await hubChecksum(model.url, fetchImpl)) };
-  mkdirSync(dirname(target), { recursive: true });
-
-  const part = `${target}.part`;
-  const offset = existsSync(part) ? statSync(part).size : 0;
-  const res = await fetchImpl(spec.url, { headers: offset ? { Range: `bytes=${offset}-` } : {} });
+async function fetchInto(
+  spec: ModelSpec,
+  part: string,
+  offset: number,
+  onProgress: ((p: Progress) => void) | undefined,
+  fetchImpl: typeof fetch,
+): Promise<void> {
+  let res = await fetchImpl(spec.url, { headers: offset ? { Range: `bytes=${offset}-` } : {} });
+  if (res.status === 416 && offset) res = await fetchImpl(spec.url);
   if (res.status === 404) throw new Error(`Model ${spec.id} is not published yet (${spec.url})`);
   if (!res.ok || !res.body) throw new Error(`Download failed: HTTP ${res.status} for ${spec.url}`);
 
@@ -75,6 +71,22 @@ export async function downloadModel(
     }
   };
   await pipeline(Readable.fromWeb(res.body as never), counter, createWriteStream(part, { flags: resumed ? 'a' : 'w' }));
+}
+
+export async function downloadModel(
+  model: ModelSpec,
+  onProgress?: (p: Progress) => void,
+  fetchImpl: typeof fetch = fetch,
+): Promise<string> {
+  const target = modelPath(model);
+  if (existsSync(target)) return target;
+  const spec = model.sha256 ? model : { ...model, ...(await hubChecksum(model.url, fetchImpl)) };
+  mkdirSync(dirname(target), { recursive: true });
+
+  const part = `${target}.part`;
+  let offset = existsSync(part) ? statSync(part).size : 0;
+  if (spec.size && offset > spec.size) offset = 0;
+  if (!spec.size || offset < spec.size) await fetchInto(spec, part, offset, onProgress, fetchImpl);
 
   if (spec.sha256) {
     const actual = await sha256File(part);

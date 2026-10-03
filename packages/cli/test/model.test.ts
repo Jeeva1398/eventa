@@ -62,6 +62,26 @@ describe('downloadModel', () => {
     expect(readFileSync(target)).toEqual(payload);
   });
 
+  it('verifies a complete partial file without downloading it again', async () => {
+    const s = spec({ sha256: sha, size: payload.length });
+    mkdirSync(modelsDir(), { recursive: true });
+    writeFileSync(`${modelPath(s)}.part`, payload);
+    let calls = 0;
+    await downloadModel(s, undefined, (async () => (calls++, new Response('', { status: 416 }))) as typeof fetch);
+    expect(calls).toBe(0);
+    expect(readFileSync(modelPath(s))).toEqual(payload);
+  });
+
+  it('restarts from scratch when the server rejects the resume range', async () => {
+    const s = spec({ sha256: sha });
+    mkdirSync(modelsDir(), { recursive: true });
+    writeFileSync(`${modelPath(s)}.part`, payload);
+    const fake = (async (_u: string, init?: RequestInit) =>
+      (init?.headers as Record<string, string> | undefined)?.Range ? new Response('', { status: 416 }) : new Response(payload)) as typeof fetch;
+    await downloadModel(s, undefined, fake);
+    expect(readFileSync(modelPath(s))).toEqual(payload);
+  });
+
   it('deletes the file on checksum mismatch', async () => {
     const s = spec({ sha256: 'f'.repeat(64) });
     await expect(downloadModel(s, undefined, (async () => new Response(payload)) as typeof fetch)).rejects.toThrow(/Checksum mismatch/);
