@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { isLocalHost } from '../src/llm/index.js';
 import { OllamaProvider, parseNdjson } from '../src/llm/ollama.js';
 import { ProviderError } from '../src/llm/provider.js';
 
@@ -56,5 +57,12 @@ describe('OllamaProvider', () => {
   it('check accepts an untagged model name as :latest', async () => {
     const fake = (async () => Response.json({ models: [{ name: 'eventa:latest' }] })) as typeof fetch;
     await expect(new OllamaProvider('eventa', 'http://x', fake).check()).resolves.toBeUndefined();
+  });
+});
+
+describe('isLocalHost', () => {
+  it('treats loopback addresses as local and anything else as remote', () => {
+    for (const h of ['http://localhost:11434', 'http://127.0.0.1:11434', 'http://[::1]:11434', 'http://0.0.0.0:11434']) expect(isLocalHost(h)).toBe(true);
+    for (const h of ['http://10.0.0.5:11434', 'https://ollama.example.com', 'not a url']) expect(isLocalHost(h)).toBe(false);
   });
 });
