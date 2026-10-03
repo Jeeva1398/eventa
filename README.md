@@ -113,12 +113,72 @@ With `provider: auto` (the default), Eventa uses Ollama if it is running and has
 
 ## Privacy & security
 
-- **Your code stays local.** It is only sent to the local model, or to Ollama at your configured host.
-- **First local use** downloads the runtime from a pinned lockfile, with install scripts disabled, and the model from a pinned Hugging Face commit with SHA-256 verification.
-- **`eventa deps`** runs `npm audit` / `npm outdated`, which send dependency names and versions to the npm registry.
-- **Safeguards:** `explain` reads only files inside your project, and AI output has terminal control sequences stripped and is never executed.
+Your code stays on your machine. Eventa sends it only to the model running locally: the built-in runtime, or Ollama.
+
+### What Eventa reads
+
+Eventa never uploads your project. Each command reads only what it needs, and sends it to the model running on your machine:
+
+| Command | Reads | Sent to the model |
+|---|---|---|
+| `explain` | The error you give it, and about 30 lines around up to 3 stack-trace lines in your project (never `node_modules` or files outside the project) | The error, those lines, your Node version and dependency names |
+| `review` | Only the `git diff` (staged, unstaged, or since `--base`) | The changed lines with 3 lines of context |
+| `deps` | `package.json`, and your source files only to collect `import`/`require` package names | Package names, versions and advisory titles, and only with `--ai`. Never code. |
+| `ask` | Nothing | Your question |
+
+Eventa stores no prompts, answers or logs, and has no telemetry or analytics. The only files it writes are the config, runtime and models in `~/.eventa`.
+
+If you point `ollamaHost` (or `OLLAMA_HOST`) at another machine, your code is sent there, and Eventa prints a warning each time. To guarantee that nothing leaves the machine, run `eventa config set provider local`.
+
+### Network calls
+
+| When | Where | What is sent |
+|---|---|---|
+| First local use | npm registry | Downloads the runtime from a **pinned lockfile** with integrity hashes and **install scripts disabled** |
+| First local use | huggingface.co | Downloads the model from a pinned commit and verifies its **SHA-256** |
+| `eventa deps` | npm registry | Runs `npm audit` / `npm outdated`, which send your dependency names and versions (exactly as running them yourself would) |
+
+**Safeguards:** AI output has terminal control sequences stripped and is never executed, and `--run` executes only the command you type. The npm package is published with provenance from GitHub Actions.
 
 Report vulnerabilities privately: https://github.com/Jeeva1398/eventa/security/advisories/new
+
+## FAQ & troubleshooting
+
+**How much disk space does it need?**
+About 1 GB in `~/.eventa`: the runtime (~80 MB) and the model (~940 MB). Both are downloaded on the first AI command, not at `npm install`. `eventa deps` (without `--ai`), `config` and `--help` download nothing. If you use Ollama instead, Eventa downloads neither; Ollama stores the model itself.
+
+**How much memory, and do I need a GPU?**
+No GPU is needed. The model runs on the CPU (Apple Silicon Macs also use Metal) and needs roughly 1.5–2 GB of free memory while it answers. Expect about 6 seconds per answer on a laptop CPU. `review` asks the model once per changed file.
+
+**Which platforms are supported?**
+Windows x64/arm64, macOS (Intel and Apple Silicon) and Linux x64/arm64/armv7/riscv64, all with prebuilt binaries and no compiler. On any other platform, install [Ollama](https://ollama.com) and Eventa will use it. The standalone binaries on GitHub Releases cannot install the built-in runtime, so use them with Ollama, or install the npm package.
+
+**Can I download everything in advance, or set it up on an offline machine?**
+Run `eventa model pull` once while online. After that, every command except `deps` works offline. For an air-gapped machine, copy `~/.eventa` from a machine with the same OS and CPU type, or download the `.gguf` file yourself and run `eventa model use /path/to/model.gguf`.
+
+**I'm behind a proxy.**
+The runtime is installed with npm, so it uses your npm proxy settings. The model is downloaded with Node's built-in `fetch`. On Node 24+, set `NODE_USE_ENV_PROXY=1` along with `HTTPS_PROXY`. Otherwise, download the `.gguf` yourself and run `eventa model use <path>`.
+
+**Does it work with React, Next.js or other languages?**
+It is trained for Node.js backends in JavaScript and TypeScript, including Express, NestJS and Prisma. It will still read other code, but expect weaker answers.
+
+**I use pnpm or yarn.**
+`explain`, `review` and `ask` work in any project. `deps` runs `npm audit` and `npm outdated`, so it needs a `package-lock.json`.
+
+**The review flagged something that is fine.**
+Lines under **Static checks** are quick pattern matches that guide the model, and can be wrong. The model's own findings are listed under **AI review**. `--fail-on` and the GitHub Action only count the AI findings.
+
+**The download failed or stopped.**
+Run the command again; it resumes where it stopped. If it keeps failing, delete `~/.eventa/models/*.part` and retry. `eventa doctor` shows what is installed.
+
+**"Cannot reach Ollama" or "Unknown model".**
+`-m` sets the model for both Ollama and the built-in runtime. To use an Ollama model such as `qwen2.5-coder:1.5b`, also pass `--provider ollama` and make sure `ollama serve` is running. Built-in model ids are listed by `eventa model list`.
+
+**How do I update it?**
+Run `npm i -g @jeeva1398/eventa` again. The model is downloaded again only when a new version pins a new model. You can then delete the old `.gguf` file from `~/.eventa/models`.
+
+**How do I uninstall it?**
+Run `npm uninstall -g @jeeva1398/eventa`, then delete `~/.eventa` (on Windows, `%USERPROFILE%\.eventa`) to remove the runtime and model.
 
 ## Development
 
@@ -136,8 +196,6 @@ npm run build
 packages/cli/   the `eventa` npm package (TypeScript)
 training/       dataset builders, fine-tuning notebook, eval
 ```
-
-Or install once with `npm i -g @jeeva1398/eventa`, then use the `eventa` command.
 
 ## Releasing
 
