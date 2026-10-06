@@ -87,7 +87,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
-      - uses: Jeeva1398/eventa@v0.2.0
+      - uses: Jeeva1398/eventa@v0.2.1
         with:
           fail-on: none   # or high | medium | low to fail the check
 ```
