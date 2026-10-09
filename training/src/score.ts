@@ -14,12 +14,14 @@ export function scoreReview(output: string, expected: { line: number; severity: 
   const near = (a: { line: number }, b: { line: number }) => Math.abs(a.line - b.line) <= 1;
   if (!expected.length) {
     const clean = predicted.length === 0 && /no issues found/i.test(output);
-    return { clean: clean ? 1 : 0, cleanWithChecks: clean && !hints.length ? 1 : 0 };
+    return { clean: clean ? 1 : 0, cleanWithChecks: clean && !hints.length ? 1 : 0, [hints.length ? 'falseHintRejected' : 'cleanNoHint']: clean ? 1 : 0 };
   }
   const matched = expected.filter((e) => predicted.some((p) => near(p, e)));
   const severity = matched.filter((e) => predicted.some((p) => near(p, e) && p.severity === e.severity));
+  const recall = matched.length / expected.length;
   return {
-    recall: matched.length / expected.length,
+    recall,
+    [hints.length ? 'recallHinted' : 'recallNoHint']: recall,
     precision: predicted.length ? Math.min(1, matched.length / predicted.length) : 0,
     severity: matched.length ? severity.length / matched.length : 0,
     recallWithChecks: expected.filter((e) => [...predicted, ...hints].some((p) => near(p, e))).length / expected.length,

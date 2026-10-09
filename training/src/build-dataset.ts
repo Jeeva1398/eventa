@@ -21,9 +21,10 @@ import { MORE_REVIEWS } from './scenarios/review-more.js';
 import { HIDDEN_BUGS } from './scenarios/review-hidden.js';
 import { TS_REVIEWS } from './scenarios/review-ts.js';
 import { HINT_REVIEWS } from './scenarios/review-hints.js';
+import { EVAL_REVIEWS } from './scenarios/review-eval.js';
 import type { CrashScenario, Example, ReviewScenario, Vars } from './types.js';
 
-export const EVAL_SCENARIOS = new Set(['tdz', 'invalid-url', 'write-after-end', 'heap-oom-static', 'jwt-none-verify', 'foreach-async', 'clean-execfile', 'parseint-radix-and-nan', 'clean-validated-input', 'reduce-empty', 'ts-unknown-catch', 'nest-interface-injection', 'prisma-not-found-p2025', 'prisma-n-plus-one', 'nest-clean-controller']);
+export const EVAL_SCENARIOS = new Set(['tdz', 'invalid-url', 'write-after-end', 'heap-oom-static', 'jwt-none-verify', 'foreach-async', 'clean-execfile', 'parseint-radix-and-nan', 'clean-validated-input', 'reduce-empty', 'ts-unknown-catch', 'nest-interface-injection', 'prisma-not-found-p2025', 'prisma-n-plus-one', 'nest-clean-controller', ...EVAL_REVIEWS.map((s) => s.id)]);
 const ROOTS = ['C:\\Users\\dev\\shop', 'D:\\work\\inventory', '/home/dev/api', '/Users/sam/projects/billing', '/app', '/srv/orders-service'];
 const EXTRA_DEPS = ['express', 'pino', 'zod', 'dotenv', 'pg', 'mongoose', 'axios', 'fastify', 'ioredis'];
 const NODE_VERSIONS = ['18.20.4', '20.18.1', '22.12.0'];
@@ -178,7 +179,7 @@ function main() {
       for (let r = 0; r < (EVAL_SCENARIOS.has(s.id) ? 1 : repeats); r++) add(explainExample(s, i * repeats + r));
     });
   }
-  for (const scenario of [...REVIEWS, ...MORE_REVIEWS, ...HIDDEN_BUGS, ...TS_REVIEWS, ...HINT_REVIEWS]) expand(scenario).forEach((s, i) => add(reviewExample(s, i)));
+  for (const scenario of [...REVIEWS, ...MORE_REVIEWS, ...HIDDEN_BUGS, ...TS_REVIEWS, ...HINT_REVIEWS, ...EVAL_REVIEWS]) expand(scenario).forEach((s, i) => add(reviewExample(s, i)));
   for (let i = 0; i < Number(process.env.DEPS_TRAIN ?? 150); i++) add(depsExample(i, 'train'));
   for (let i = 0; i < Number(process.env.DEPS_EVAL ?? 15); i++) add(depsExample(i, 'eval'));
 
